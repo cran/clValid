@@ -1,0 +1,9 @@
+.onLoad <- function(lib, pkg) require(methods)
+importFrom(graphics, plot)
+exportClasses(clValid)
+exportMethods(clusters, clusterMethods, nClusters, measNames, measures, optimalScores, plot, print, show, summary)
+export(clValid, sota, plot.sota, print.sota)
+
+
+
+            
