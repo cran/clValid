@@ -187,7 +187,7 @@ clValid <- function(obj, nClust, clMethods="hierarchical", validation="stability
   
   switch(class(obj),
          matrix = mat <- obj,                                        
-         exprSet = mat <- exprs(obj),
+         exprSet = mat <- Biobase::exprs(obj),
          data.frame = {
            if(any(sapply(obj,class)!="numeric"))
              stop("data frame 'obj' contains non-numeric data")
@@ -199,9 +199,10 @@ clValid <- function(obj, nClust, clMethods="hierarchical", validation="stability
     warning("'clara' currently only works with 'euclidean' or 'manhattan' metrics - metric will be changed to 'euclidean'  ")
 
   if ("biological"%in%validation & is.character(annotation)) {
-    require(Biobase)
-    require(GO)
-    require(annotate)
+    if(!require(Biobase) | !require(GO) | !require(annotate)) {
+      stop("packages 'Biobase', 'GO', and 'annotate' required for 2nd type of biological validation \n
+these can be downloaded from Bioconductor (www.bioconductor.org)")
+    }
   }
   
   if (!is.matrix(mat) | !is.numeric(mat))
@@ -625,7 +626,9 @@ BHI <- function(statClust,annotation,names=NULL,category="all") {
 #             biocLite("annotate")
 #           }
 #           Data <- match.fun(id)
-           require(annotation,character.only=TRUE)
+           if(!require(annotation,character.only=TRUE)) {
+             stop(paste("package",annotation,"not found",sep=" "))
+           }
            goTerms <- getGO(names,annotation)
 
          })
@@ -726,7 +729,9 @@ BSI <- function(statClust,statClustDel,annotation,names=NULL,category="all", goT
 #             source("http://bioconductor.org/biocLite.R")
 #             biocLite(id)
 #           }
-           require(annotation,character.only=TRUE)
+           if(!require(annotation,character.only=TRUE)) {
+             stop(paste("package",annotation,"not found",sep=" "))
+           }
            goTerms <- getGO(names,annotation)
          })
 

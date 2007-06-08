@@ -125,8 +125,7 @@ that are most appropriate for the data.  Ideally, the resulting clusters should
 not only have good statistical properties (compact, well-separated,
 connected, and stable), but also
 give results that are biologically relevant.
-% the clusters should make sense statistically as well as biologically.
-% concluding sentence - validation
+
 
 A variety of measures aimed at validating the
 results of a clustering analysis and determining which clustering
@@ -140,27 +139,13 @@ validation with post-genomic data and provides a synopsis of many of
 the available validation measures. 
 
 
-% need to rewrite this paragraph somewhat
 In this paper, we present an R package \pkg{clValid} which contains a
 variety of methods for validating the results
 from a clustering analysis.  
 The main function is \rf{clValid()}, and the available validation measures fall into the three general
 categories of ``internal'', ``stability'', and ``biological''.  
-% Many of these are currently available within the R system for statistical computing.(ref).  
 The user can simultaneously select multiple clustering algorithms,
 validation measures, and numbers of clusters in a single function call,
-%choose from a variety of clustering algorithms and simultaneously vary
-%the number of clusters 
-% including \ro{hclust} and  \ro{kmeans} in package \pkg{stats}, 
-%\ro{agnes}, \ro{clara},  \ro{diana},
-%\ro{fanny}, and \ro{pam} in package \pkg{cluster},
-%\ro{som} in package \pkg{som}, \ro{Mclust}
-%in package \pkg{mclust}, and \ro{sota}, available in this package.  
-%The user can request any combination of validation measures and
-%clustering methods in a single function call.  
-%This allows the user to
-%simultaneously evaluate several clustering algorithms with varying
-%numbers of clusters, 
 to determine the most appropriate method and
 an optimal number of clusters for the dataset.  
 Additionally, the \pkg{clValid} package
@@ -178,10 +163,7 @@ a variety of methods available to plot and summarize the validation
 measures, display the optimal scores along with the corresponding cluster method
 and number of clusters, and extract the clustering results for a
 particular algorithm.
-%summary, plot,
-%and additional methods which allow the user to display the optimal
-%validation scores, extract clustering results, and generate Monte
-%Carlo $p$-values for the validation measures.  
+
 
 The rest of this paper is organized as follows.  Section \ref{sec:measures}
 contains a detailed description of the validation measures that are
@@ -199,13 +181,7 @@ the benefits our software provides in comparison.
 \section{Validation Measures}
 \label{sec:measures}
 
-%Let $N$ denote the total number of observations (rows) in a dataset
-%and $M$ denote the total number of columns, which could be e.g. different numeric
-%variables, a collection of samples, or time points.  
-%Let $\mathcal{C} = \{C_1, \ldots, C_K\}$ denote a clustering partition
-%of the $N$ observations into $K$ disjoint clusters.  
-%For example, $C_1, \ldots, C_K$ could represent the
-%clustering of $N$ genes into $K$ clusters.  
+
 
 The \pkg{clValid} package offers three types of cluster
 validation, ``internal'', ``stability'', and ``biological''.  
@@ -215,8 +191,6 @@ assess the quality of the clustering.
 The stability measures are a special version of internal measures.
 They evaluate the consistency of a clustering result by comparing it
 with the clusters obtained after each column is removed, one at a time.
-%An overall score is obtained by averaging over all the deleted columns.
-%biological
 Biological validation evaluates the ability of a clustering algorithm
 to produce biologically meaningful clusters.  We have measures
 to investigate both the biological homogeneity and stability of the
@@ -477,7 +451,6 @@ clusters of the functionally annotated genes.
 \section{Clustering Algorithms}
 \label{sec:clustering}
 
-% Some brief blurb
 The R statistical computing project \citep{R} has a wide variety of
 clustering algorithms available in the base distribution and various
 add-on packages.  We make use of nine algorithms from the base
@@ -488,21 +461,6 @@ A brief description of each clustering method and its availability is
 given below.
 
 
-
-%We consider the following well known clustering algorithms
-%representing the vast spectrum of clustering techniques
-%that are available in statistical pattern recognition
-%and machine learning literature. We evaluate these algorithms
-%using the two biological performance measures
-%BHI and BSI. One minus correlation was taken as the dissimilarity
-%measure for the "distance" based algorithms. In
-%addition, for UPGMA, Diana, Fanny, we also considered
-%the standard Euclidean distance between expression vectors
-%as a dissimilarity measure. Thus, overall, ten clustering
-%schemes were subjected to this comparative
-%evaluation.
-
-%c("hierarchical","kmeans","diana","fanny","som","model","sota","pam","clara","agnes"),
 
 \subsubsection*{UPGMA}
 
@@ -598,14 +556,6 @@ It uses a fast algorithm and hence is suitable
 for clustering a large number of objects.
 SOTA is included with the \pkg{clValid} package as function \rf{sota()}.
 
-%%availability
-%UPGMA
-%is implemented using the \rf{hclust()} function available in the base
-%distribution of R
-%UPGMA (hclust) and K-Means are available in the base
-%distribution of R. Diana and Fanny are available in the
-%library "cluster". Model based clustering is available in the
-%R-package mclust.
 
 
 
@@ -630,11 +580,14 @@ stress-induced (6), transcription factors (28), and miscellaneous
 ``genes'' were ESTs.
 For further description of the dataset and the experiments the reader is referred to \citet{Bha2007}.
 
-NOTE: The following example uses package \pkg{mclust}, see the note
+NOTE1: It takes some time (several minutes) to run the code for this
+example.  Run times can be reduced by removing some of the clustering
+methods from the validation.
+
+NOTE2: The following example uses package \pkg{mclust}, see the note
 below for usage.
 
-%% other options to set??
-%% load("paper.rda")
+
 <<prelim, echo=FALSE>>=
 library("clValid")
 @ 
@@ -706,7 +659,7 @@ par(op)
   \centering
 <<fig=TRUE,echo=FALSE>>=
 <<internPlot>>
-@ %
+@ 
   \caption{Plots of the connectivity measure, the Dunn Index, and the
     Silhouette Width.}
   \label{fig:internPlot}
@@ -759,7 +712,6 @@ have omitted it from the figure.
 % omit FOM - very similar to AD
 
 
-
 <<stabPlot, eval=FALSE>>=
 par(mfrow=c(2,2),mar=c(4,4,3,1))
 plot(stab, measure=c("APN","AD","ADM"),legend=FALSE)
@@ -773,7 +725,7 @@ par(op)
   \centering
 <<fig=TRUE,echo=FALSE>>=
 <<stabPlot>>
-@ %
+@ 
   \caption{Plot of the APN, AD, and APN  measures.}
   \label{fig:stabPlot}
 \end{figure}
@@ -798,17 +750,11 @@ overall performance when compared to PAM over the entire range for the
 number of clusters.  
 %Hence, in selecting a clustering algorithm,
 %consistent ... performance should be considered 
-%% more commentary here
+
 
 \subsubsection*{Biological Validation}
 
-%The stability measures include the APN, AD, ADM, and FOM.  The
-%measures should be minimized in each case.  Stability validation
-%requires more time than internal validation, since clustering needs to
-%be redone for each of the single column removed datasets.  
 
-%The two biological validation measures are the BHI and BSI.  Both of
-%these measures should be maximized.  
 There are two options for biological validation using the BHI and BSI
 measures.  The first option is to explicitly 
 specify the functional clustering of the genes.  This requires the
@@ -816,10 +762,6 @@ user to predetermine the functional classes of the genes, e.g.~using
 an annotation software package like FatiGO \citep{Al2004} or FunCat \citep{Rue2004}.
 
 
-%  annotation package and GO terms to determine the functional classes of
-%  the genes (via \code{idType} and \code{GOcategory}, respectively).
-%  The \code{idType} argument is matched to an annotation package in
-%  Bioconductor.  
 
 The functional categorization of the genes in the dataset \ro{mouse} were previously determined in
 \citet{Bha2007}, so these will be used initially to define the
@@ -856,21 +798,20 @@ plot(bio, measure="BSI")
   \centering
 <<fig=TRUE,echo=TRUE>>=
 <<BHI>>
-@ %
+@ 
   \caption{Plot of the BHI measure, using predetermined functional classes.}
   \label{fig:BHI}
 \end{figure}
-%  \includegraphics[height=6in,width=6in]{"clValidPaper-BHI"}
+
 
 \begin{figure}
   \centering
 <<fig=TRUE,echo=TRUE>>=
 <<BSI>>
-@ %
+@ 
   \caption{Plot of the BSI measure, using predetermined functional classes.}
   \label{fig:BSI}
 \end{figure}
-%   \includegraphics[height=6in,width=6in]{"clValidPaper-BSI"}
 
 
 Model based clustering appears to have the best BHI score over the
@@ -904,18 +845,17 @@ leave the \rfarg{goTermFreq} argument at its default level of 0.05,
 and use all available GO categories (\rfarg{GOcategory="all"}) for annotation.
 
 <<bioc, eval=TRUE>>=
-library(Biobase)
-library(annotate)
-library(GO)
-## Need to know which affy chip was used in experiment
-## affymetrix murine genome 430a genechip arrays
-library(moe430a)
-bio2 <- clValid(express, 2:6, clMethods=c("hierarchical","kmeans","diana","fanny","som","pam","sota","clara","model"),
-               validation="biological",annotation="moe430a",GOcategory="all")
+if(require("Biobase") && require("annotate") && require("GO") && require("moe430a")) {
+  ## Need to know which affy chip was used in experiment
+  ## affymetrix murine genome 430a genechip arrays
+  bio2 <- clValid(express, 2:6, clMethods=c("hierarchical","kmeans","diana","fanny","som","pam","sota","clara","model"),
+                  validation="biological",annotation="moe430a",GOcategory="all")
+}
+
 @ 
 
 <<eval=T>>=
-optimalScores(bio2)
+if(exists("bio2")) optimalScores(bio2)
 @ 
 
 The optimal method and number of clusters for the two measures agree
@@ -928,37 +868,31 @@ but it is uniformly the worst under the BHI measure validation.
 
 
 <<BHI2,eval=FALSE, echo=FALSE>>=
-plot(bio2, measure="BHI", legendLoc="topleft")
+if(exists("bio2")) plot(bio2, measure="BHI", legendLoc="topleft")
 @ 
 
 <<BSI2,eval=FALSE, echo=FALSE>>=
-plot(bio2, measure="BSI")
+if(exists("bio2")) plot(bio2, measure="BSI")
 @ 
 
 \begin{figure}
   \centering
-%\begin{center}
 <<fig=TRUE,echo=TRUE>>=
 <<BHI2>>
 @ 
-%  \includegraphics[height=6in,width=6in]{"clValidPaper-BHI2"}
   \caption{Plot of the BHI measure, using annotation package
     \pkg{moe430a} in Bioconductor.}
   \label{fig:BHI2}
-%\end{center}
 \end{figure}
 
 \begin{figure}
   \centering
-%\begin{center}
 <<fig=TRUE,echo=TRUE>>=
 <<BSI2>>
 @ 
-%  \includegraphics[height=6in,width=6in]{"clValidPaper-BSI2"}
   \caption{Plot of the BSI measure, using annotation package
     \pkg{moe430a} in Bioconductor.}
   \label{fig:BSI2}
-%\end{center}
 \end{figure}
 
 
@@ -989,14 +923,11 @@ plot(hc)
 
 \begin{figure}
   \centering
-%\begin{center}
 <<fig=TRUE,echo=FALSE>>=
 <<hplot>>
-@ %
-%  \includegraphics[height=6in,width=6in]{"clValidPaper-hplot"}
+@ 
   \caption{Plot of the dendogram for hierarchical clustering.}
   \label{fig:hplot}
-%\end{center}
 \end{figure}
 
 <<twoClusters, eval=TRUE>>=
@@ -1031,11 +962,6 @@ calculate the biological validation measures, so that the information
 contained in the GO database can be used to assist in the cluster
 validation process.
 
-%so that a
-%variety of clustering methods can be tried and tested.  Since R is an
-%object oriented language, useful plot, summary, and additional methods
-%can be constructed.  
-
 
 There are several R packages that also perform cluster validation and are available from
 \href{http://www.r-project.org}{CRAN} or
@@ -1061,7 +987,7 @@ suite offers a web-based interface for visualizing and validating
 these two tools are as flexible for interfacing with the variety of
 clustering algorithms that are available in the R language, or can
 automatically access the annotation information which is available in
-\href{http://www.bioconductor.org/}{Bioconductor}.  %1statistical programming language.
+\href{http://www.bioconductor.org/}{Bioconductor}. 
 Hence, the \pkg{clValid} package is a valuable addition to the growing
 collection of cluster validation software available for researchers.
 

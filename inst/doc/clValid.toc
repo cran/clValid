@@ -1,8 +1,0 @@
-\contentsline {section}{\numberline {1}Introduction}{2}{section.1}
-\contentsline {section}{\numberline {2}Validation Measures}{3}{section.2}
-\contentsline {subsection}{\numberline {2.1}Internal measures}{3}{subsection.2.1}
-\contentsline {subsection}{\numberline {2.2}Stability measures}{5}{subsection.2.2}
-\contentsline {subsection}{\numberline {2.3}Biological}{7}{subsection.2.3}
-\contentsline {section}{\numberline {3}Clustering Algorithms}{8}{section.3}
-\contentsline {section}{\numberline {4}Example - Mouse Mesenchymal Cells}{10}{section.4}
-\contentsline {section}{\numberline {5}Discussion}{24}{section.5}

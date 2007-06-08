@@ -223,15 +223,14 @@ optimalScores(bio)
 plot(bio)
 
 ## second way - using Bioconductor
-require("Biobase")
-require("annotate")
-require("GO")
-require("moe430a") 
-bio2 <- clValid(express, 2:6, clMethods=c("hierarchical","fanny","model"),
-               validation="biological",annotation="moe430a",GOcategory="all")
-optimalScores(bio2)
-plot(bio2)
+## second way - using Bioconductor
 
+if(require("Biobase") && require("annotate") && require("GO") && require("moe430a")) {
+  bio2 <- clValid(express, 2:6, clMethods=c("hierarchical","fanny","model"),
+                  validation="biological",annotation="moe430a",GOcategory="all")
+  optimalScores(bio2)
+  plot(bio2)
+}
 
 }
 
