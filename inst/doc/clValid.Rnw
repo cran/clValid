@@ -2,7 +2,7 @@
 % likely to be overwritten.
 %
 % \VignetteIndexEntry{clValid Overview}
-% \VignetteDepends{clValid, cluster, kohonen, class, mclust, Biobase, annotate, GO, moe430a}
+% \VignetteDepends{cluster, kohonen, class, mclust, Biobase, annotate, GO, moe430a}
 % \VignetteKeywords{clustering, validation, stability measures, biological annotation, functional categories}
 % \VignettePackage{clValid}
 
@@ -580,11 +580,11 @@ stress-induced (6), transcription factors (28), and miscellaneous
 ``genes'' were ESTs.
 For further description of the dataset and the experiments the reader is referred to \citet{Bha2007}.
 
-NOTE1: It takes some time (several minutes) to run the code for this
-example.  Run times can be reduced by removing some of the clustering
-methods from the validation.
+%NOTE1: It takes some time (several minutes) to run the code for this
+%example.  Run times can be reduced by removing some of the clustering
+%methods from the validation.
 
-NOTE2: The following example uses package \pkg{mclust}, see the note
+NOTE: The following example uses package \pkg{mclust}, see the note
 below for usage.
 
 
@@ -596,8 +596,8 @@ We begin by loading the dataset:
 <<mouse>>=
 data(mouse)
 @ 
-We want to evaluate the results from a clustering analysis, using all the
-available clustering algorithms.   Since the genes fall
+We want to evaluate the results from a clustering analysis, using the
+clustering algorithms UPGMA, PAM, and K-means.   Since the genes fall
 into one of two groups, up or down-regulated in the neural
 crest vs.~mesoderm-derived tissue, the numbers of clusters is varied
 from 2 to 6.  The distance metric (both for the applicable
@@ -621,7 +621,7 @@ the ``hierarchical'' method.
 <<internal,eval=TRUE>>=
 express <- mouse[,c("M1","M2","M3","NC1","NC2","NC3")]
 rownames(express) <- mouse$ID
-intern <- clValid(express, 2:6, clMethods=c("hierarchical","kmeans","diana","fanny","som","pam","sota","clara","model"),
+intern <- clValid(express, 2:6, clMethods=c("hierarchical","kmeans","pam"),
                   validation="internal")
 @ 
 
@@ -673,14 +673,10 @@ Recall that the connectivity should be minimized, while both the Dunn
 Index and the Silhouette Width should be maximized.  Thus, it appears
 that hierarchical clustering (UPGMA) 
 outperforms the other clustering algorithms under each validation
-measure, for nearly every number of clusters
-evaluated.
-Somewhat surprisingly, model based clustering does not perform well
-on any of the measures.
-Regardless of the clustering algorithm, 
-the optimal number of clusters seems to be two using the connectivity and
-Silhouette Width.  For the Dunn Index the best choice for the number of
-clusters is less clear.  
+measure.
+For hierarchical clustering the optimal number of clusters is clearly
+two.  For PAM, a case could be made for using six clusters.
+
 
 \subsubsection*{Stability Validation}
 
@@ -690,7 +686,7 @@ requires more time than internal validation, since clustering needs to
 be redone for each of the datasets with a single column removed.  
 
 <<stability,eval=TRUE>>=
-stab <- clValid(express, 2:6, clMethods=c("hierarchical","kmeans","diana","fanny","som","pam","sota","clara","model"),
+stab <- clValid(express, 2:6, clMethods=c("hierarchical","kmeans","pam"),
                 validation="stability")
 @ 
 
@@ -737,19 +733,15 @@ The plots of the APN, AD, and ADM are given in Figure
 \ref{fig:stabPlot}.
 %\ref{fig:APN}, \ref{fig:AD}, \ref{fig:ADM}, \ref{fig:FOM}, respectively.  
 The APN measure shows an interesting
-trend for many of the cluster methods, in that it initially increases
+trend, in that it initially increases
 from two to four clusters but subsequently decreases afterwards.  
 Though hierarchical clustering with two clusters has the best score,
 PAM with six clusters is a close second.
 The AD and FOM measures tend to decrease as the number of clusters
-increases.  PAM with six clusters has the best overall score,
-but over the entire range of clusters evaluated SOM,
-K-means, and Diana have better overall performance.  
-Similarly, for the ADM measure SOTA has a more stable and better
-overall performance when compared to PAM over the entire range for the
-number of clusters.  
-%Hence, in selecting a clustering algorithm,
-%consistent ... performance should be considered 
+increases.  Here PAM with six clusters has the best overall score,
+though the other algorithms have similar scores.
+For the ADM measure PAM with six clusters again has the best score,
+though the other methods outperform PAM for smaller numbers of clusters.
 
 
 \subsubsection*{Biological Validation}
@@ -770,7 +762,7 @@ functional classes.
 <<biological, eval=TRUE>>=
 fc <- tapply(rownames(express),mouse$FC, c)
 fc <- fc[!names(fc)%in%c("EST","Unknown")]
-bio <- clValid(express, 2:6, clMethods=c("hierarchical","kmeans","diana","fanny","som","pam","sota","clara","model"),
+bio <- clValid(express, 2:6, clMethods=c("hierarchical","kmeans","pam"),
                validation="biological", annotation=fc)
 @ 
 
@@ -779,7 +771,7 @@ Recall that both the BHI and BSI should be maximized.  The optimal values for ea
 <<bioOptimal, eval=TRUE>>=
 optimalScores(bio)
 @ 
-Model based clustering with six clusters has the best value of the
+K-means clustering with five clusters has the best value of the
 BHI, while for the BSI hierarchical clustering with two clusters again
 does well.  Plots of the measures are given in Figures \ref{fig:BHI} and \ref{fig:BSI}. 
 
@@ -814,9 +806,9 @@ plot(bio, measure="BSI")
 \end{figure}
 
 
-Model based clustering appears to have the best BHI score over the
-range for the number of clusters, while hierarchical clustering is
-slightly better than model based overall for the BSI scores.
+%Model based clustering appears to have the best BHI score over the
+%range for the number of clusters, while hierarchical clustering is
+%slightly better than model based overall for the BSI scores.
 
 The other option for biological validation is to use the annotation packages available in
 Bioconductor \citep{BioC}.  This option uses the annotation packages
@@ -848,7 +840,7 @@ and use all available GO categories (\rfarg{GOcategory="all"}) for annotation.
 if(require("Biobase") && require("annotate") && require("GO") && require("moe430a")) {
   ## Need to know which affy chip was used in experiment
   ## affymetrix murine genome 430a genechip arrays
-  bio2 <- clValid(express, 2:6, clMethods=c("hierarchical","kmeans","diana","fanny","som","pam","sota","clara","model"),
+  bio2 <- clValid(express, 2:6, clMethods=c("hierarchical","kmeans","pam"),
                   validation="biological",annotation="moe430a",GOcategory="all")
 }
 
