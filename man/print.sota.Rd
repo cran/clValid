@@ -6,11 +6,11 @@
  A default print method for a SOTA object.
 }
 \usage{
-print.sota(x, ...)
+\method{print}{sota}(x, ...)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
-  \item{x}{a SOTA object as returned by the \code{sota} function}
+  \item{x}{a SOTA object as returned by the \code{\link{sota}} function}
   \item{\dots}{Additional arguments to pass to \code{\link{print}}}
 }
 \value{

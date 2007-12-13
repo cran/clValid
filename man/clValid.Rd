@@ -12,13 +12,13 @@
 }
 \usage{
 clValid(obj, nClust, clMethods = "hierarchical", validation =
-"stability", metric = "euclidean", method = "average", neighbSize = 10,
-annotation, GOcategory = "all", goTermFreq=0.05, ...)
+"stability", maxitems = 600, metric = "euclidean", method = "average",
+neighbSize = 10, annotation = "entrezgene", GOcategory = "all", goTermFreq=0.05, ...)
 }
 
 
 \arguments{
-  \item{obj}{Either a numeric matrix, a data frame, or an \code{\link[Biobase]{exprSet}}
+  \item{obj}{Either a numeric matrix, a data frame, or an \code{\link[Biobase]{ExpressionSet}}
     object.  Data frames must contain all numeric columns.  In all
     cases, the rows are the items to be clustered (e.g., genes),
     and the columns are the samples.}
@@ -32,6 +32,7 @@ annotation, GOcategory = "all", goTermFreq=0.05, ...)
   \item{validation}{A character vector giving the type of
     validation measures to use.  Available options are "internal",
     "stability", and "biological", with multiple choices allowed.  }
+  \item{maxitems}{The maximum number of items (rows in matrix) which can be clustered.}
   \item{metric}{The metric used to determine the distance
     matrix.  Possible choices are "euclidean", "correlation", and "manhattan".}
   \item{method}{For hierarchical clustering (\code{hclust} and \code{agnes}), the
@@ -187,6 +188,12 @@ be found in the package vignette.
   \code{\link[kohonen]{som}} in package \pkg{kohonen}, \code{\link[mclust]{Mclust}}
   in package \pkg{mclust}, and \code{\link{sota}} (in this package).
 
+  For additional help on the validation measures see
+  \code{\link{connectivity}},   \code{\link{dunn}},
+  \code{\link{stability}}, 
+  \code{\link{BHI}}, and 
+  \code{\link{BSI}}. 
+
   % links to other validation packages??
   
 }
@@ -223,8 +230,6 @@ optimalScores(bio)
 plot(bio)
 
 ## second way - using Bioconductor
-## second way - using Bioconductor
-
 if(require("Biobase") && require("annotate") && require("GO") && require("moe430a")) {
   bio2 <- clValid(express, 2:6, clMethods=c("hierarchical","fanny","model"),
                   validation="biological",annotation="moe430a",GOcategory="all")

@@ -8,12 +8,11 @@
   are displayed side by side.
 }
 \usage{
-#S3 method for a SOTA object.
-plot.sota(x, cl = 0, ...)
+\method{plot}{sota}(x, cl = 0, ...)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
-  \item{x}{SOTA object, an object returned by function \code{sota}.}
+  \item{x}{SOTA object, an object returned by function \code{\link{sota}}.}
   \item{cl}{\code{cl} specifies which cluster is to be plotted by setting it to the cluster ID. By default,
     \code{cl} is equal to 0 and the function plots all clusters side by
     side.}

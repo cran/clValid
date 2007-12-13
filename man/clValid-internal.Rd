@@ -1,10 +1,10 @@
 \name{clValid-internal}
-\alias{stability}
+%\alias{stability}
 \alias{vClusters}
-\alias{connectivity}
-\alias{dunn}
-\alias{BHI}
-\alias{BSI}
+%\alias{connectivity}
+%\alias{dunn}
+%\alias{BHI}
+%\alias{BSI}
 \alias{matchGO}
 
 %- Also NEED an '\alias' for EACH other topic documented here.

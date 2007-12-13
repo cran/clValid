@@ -80,14 +80,14 @@ setMethod("summary","clValid",
                                         ## Measures to minimize
             if (any(a <- minmeas%in%measNames)) {
               best[minmeas[a]] <- apply(measures(object)[minmeas[a],,,drop=FALSE],1,min)
-              bestInd <- apply(measures(object)[minmeas[a],,,drop=FALSE],1,function(x) which(x==min(x),arr.ind=T)[1,])
+              bestInd <- apply(measures(object)[minmeas[a],,,drop=FALSE],1,function(x) which(x==min(x),arr.ind=TRUE)[1,])
               bestNc[minmeas[a]] <- nClusters(object)[bestInd[1,]]
               bestMeth[minmeas[a]] <- clusterMethods(object)[bestInd[2,]]
             }
                                         ## Measures to maximize
             if (any(a <- maxmeas%in%measNames)) {
               best[maxmeas[a]] <- apply(measures(object)[maxmeas[a],,,drop=FALSE],1,max)
-              bestInd <- apply(measures(object)[maxmeas[a],,,drop=FALSE],1,function(x) which(x==max(x),arr.ind=T)[1,])
+              bestInd <- apply(measures(object)[maxmeas[a],,,drop=FALSE],1,function(x) which(x==max(x),arr.ind=TRUE)[1,])
               bestNc[maxmeas[a]] <- nClusters(object)[bestInd[1,]]
               bestMeth[maxmeas[a]] <- clusterMethods(object)[bestInd[2,]]
             }
@@ -114,11 +114,23 @@ setMethod("plot",c("clValid","missing"),
               op <- par(ask = TRUE)
               on.exit(par(op))
             }
-            if(is.null(main))
-              main <- paste("Validation Measures for ", deparse(substitute(x, sys.frame(-1))))
+#            if(is.null(main))
+#              main <- paste("Validation Measures for ", deparse(substitute(x, sys.frame(-1))))
             if (is.null(pch)) 
               pch <- c(paste(c(1:9, 0)), letters)[1:k]            
             for(i in 1:length(measures)) {
+              if (is.null(main)) {
+                main <- switch(measures[i],
+                               APN="Stability validation",
+                               AD="Stability validation",
+                               ADM="Stability validation",
+                               FOM="Stability validation",
+                               Connectivity="Internal validation",
+                               Dunn="Internal validation",
+                               Silhouette="Internal validation",
+                               BHI="Biological validation",
+                               BSI="Biological validation")
+              }
               matplot(measures(x)[measures[i],,],type=type,ylab=measures[i],
                       xlab="Number of Clusters",col=1:k,
                       lty=1:k,main=main,xaxt="n", pch=pch, ...)
@@ -150,14 +162,14 @@ setMethod("optimalScores", signature(object="clValid"),
                                         ## Measures to minimize
             if (any(a <- minmeas%in%measNames)) {
               best[minmeas[a]] <- apply(measures(object)[minmeas[a],,,drop=FALSE],1,min)
-              bestInd <- apply(measures(object)[minmeas[a],,,drop=FALSE],1,function(x) which(x==min(x),arr.ind=T)[1,])
+              bestInd <- apply(measures(object)[minmeas[a],,,drop=FALSE],1,function(x) which(x==min(x),arr.ind=TRUE)[1,])
               bestNc[minmeas[a]] <- nClusters(object)[bestInd[1,]]
               bestMeth[minmeas[a]] <- clusterMethods(object)[bestInd[2,]]
             }
                                         ## Measures to maximize
             if (any(a <- maxmeas%in%measNames)) {
               best[maxmeas[a]] <- apply(measures(object)[maxmeas[a],,,drop=FALSE],1,max)
-              bestInd <- apply(measures(object)[maxmeas[a],,,drop=FALSE],1,function(x) which(x==max(x),arr.ind=T)[1,])
+              bestInd <- apply(measures(object)[maxmeas[a],,,drop=FALSE],1,function(x) which(x==max(x),arr.ind=TRUE)[1,])
               bestNc[maxmeas[a]] <- nClusters(object)[bestInd[1,]]
               bestMeth[maxmeas[a]] <- clusterMethods(object)[bestInd[2,]]
             }
@@ -173,28 +185,44 @@ setMethod("optimalScores", signature(object="clValid"),
 ## Next put all the functions for cluster validation
 #####################################################################################
 
-clValid <- function(obj, nClust, clMethods="hierarchical", validation="stability", 
+clValid <- function(obj, nClust, clMethods="hierarchical", validation="stability", maxitems=600, 
                              metric="euclidean", method="average", neighbSize=10, annotation="entrezgene", GOcategory="all", 
                              goTermFreq=0.05,  ...) {
 
   clMethods <- tolower(clMethods)  
   clMethods <- match.arg(clMethods,c("hierarchical","kmeans","diana","fanny","som","model","sota","pam","clara","agnes"),
                               several.ok=TRUE)
-  validation <- match.arg(validation,c("stability","internal","biological"),several.ok=T)
+  validation <- match.arg(validation,c("stability","internal","biological"),several.ok=TRUE)
   metric <- match.arg(metric,c("euclidean", "correlation", "manhattan")) ## used for hierarchical, diana, fanny, agnes, pam
   method <- match.arg(method,c("ward", "single", "complete", "average")) ## for hclust, agnes
   GOcategory <- match.arg(GOcategory, c("all","BP","CC","MF"))
   
   switch(class(obj),
          matrix = mat <- obj,                                        
-         exprSet = mat <- Biobase::exprs(obj),
+         ExpressionSet = mat <- Biobase::exprs(obj),
          data.frame = {
-           if(any(sapply(obj,class)!="numeric"))
+           if(any(!sapply(obj,class)%in%c("numeric","integer")))
              stop("data frame 'obj' contains non-numeric data")
            mat <- as.matrix(obj)
          },
-         stop("argument 'obj' must be a matrix, data frame, or exprSet"))
+##         dist = Dist <- obj,
+         stop("argument 'obj' must be a matrix, data frame, ExpressionSet, or dist object"))
 
+  if (nrow(mat)>maxitems) {
+    if (interactive()) {
+      cat("\nThe number of items to be clustered is larger than 'maxitems'\n")
+      cat("The memory and time required may be excessive, do you wish to continue?\n")
+      cat("(y to continue, any other character to exit) ")
+      ans <- tolower(substr(readLines(n=1),1,1))
+      if (ans!="y") {
+        stop("Exiting clValid, number of items exceeds 'maxitems'")
+      }
+    } else {
+      stop("The number of items to be clustered is larger than 'maxitems'\n  Either decrease the number of rows (items) or increase 'maxitems'\n")
+    }
+  }
+    
+  
   if ("clara"%in%clMethods & metric=="correlation")
     warning("'clara' currently only works with 'euclidean' or 'manhattan' metrics - metric will be changed to 'euclidean'  ")
 
@@ -378,7 +406,7 @@ vClusters <- function(mat,clMethod,nClust,nclustMax, validation,
                  clusterDel <- hsdel$unit.classif
                },
                pam = {
-                 clusterDel <- pam(DistDel, nc, cluster.only=T, ...)
+                 clusterDel <- pam(DistDel, nc, cluster.only=TRUE, ...)
                },
                clara = {
                  clusterDel <- clusterObjDel$clustering
@@ -433,7 +461,7 @@ vClusters <- function(mat,clMethod,nClust,nclustMax, validation,
 #####################################################################################
 
 
-stability <- function(mat, Dist, del, cluster, clusterDel) {
+stability <- function(mat, Dist=NULL, del, cluster, clusterDel, method="euclidean") {
 
   obsNum <- 1:nrow(mat)
   nc1 <- length(table(cluster))
@@ -447,7 +475,11 @@ stability <- function(mat, Dist, del, cluster, clusterDel) {
   ## measure AD
   ## calculate a ncxnc matrix of average-distance in the two collection of nc clusters
   dij <- matrix(rep(NA,nc1*nc2),nc1,nc2)
-  matDist <- as.matrix(Dist)
+
+  if (is.null(Dist)) matDist <- as.matrix(dist(mat, method=method))
+  if (class(Dist)=="dist") matDist <- as.matrix(Dist)
+  if (class(Dist)=="matrix") matDist <- Dist
+  
   ## measure ADM
   ## calculate a ncxnc matrix of distance-average in the two collection of nc clusters
   dij2 <- matrix(rep(NA,nc1*nc2),nc1,nc2)
@@ -472,8 +504,8 @@ stability <- function(mat, Dist, del, cluster, clusterDel) {
     }
     ii <- ii+1
   }
-  rs <- matrix(rowSums(overlap),nrow=nrow(overlap),ncol=ncol(overlap),byrow=F)
-  cs <- matrix(colSums(overlap),nrow=nrow(overlap),ncol=ncol(overlap),byrow=T)
+  rs <- matrix(rowSums(overlap),nrow=nrow(overlap),ncol=ncol(overlap),byrow=FALSE)
+  cs <- matrix(colSums(overlap),nrow=nrow(overlap),ncol=ncol(overlap),byrow=TRUE)
   stabmeas["APN"] <- 1-sum(overlap^2/rs)/sum(overlap)
   stabmeas["AD"] <- sum(overlap*dij)/nrow(mat)
   stabmeas["ADM"] <- sum(overlap*dij2)/nrow(mat)
@@ -523,11 +555,12 @@ mysilhouette <- function(distance=NULL, clusters, Data=NULL, method="euclidean")
 
 connectivity <- function(distance=NULL, clusters, Data=NULL, neighbSize=10, method="euclidean"){
   
+  if (is.null(distance) & is.null(Data)) stop("One of 'distance' or 'Data' is required")
   if (is.null(distance)) distance <- as.matrix(dist(Data, method=method))
   if (class(distance)=="dist") distance <- as.matrix(distance)
-  nearest <- apply(distance,2,function(x) sort(x,ind=T)$ix[2:(neighbSize+1)])
+  nearest <- apply(distance,2,function(x) sort(x,ind=TRUE)$ix[2:(neighbSize+1)])
   nr <- nrow(nearest);nc <- ncol(nearest)
-  same <- matrix(clusters,nrow=nr,ncol=nc,byrow=T)!=matrix(clusters[nearest],nrow=nr,ncol=nc)
+  same <- matrix(clusters,nrow=nr,ncol=nc,byrow=TRUE)!=matrix(clusters[nearest],nrow=nr,ncol=nc)
   conn <- sum(same*matrix(1/1:neighbSize,nrow=nr,ncol=nc))
   return(conn)
 }
@@ -541,6 +574,7 @@ connectivity <- function(distance=NULL, clusters, Data=NULL, neighbSize=10, meth
 
 dunn <- function(distance=NULL, clusters, Data=NULL, method="euclidean"){
 
+  if (is.null(distance) & is.null(Data)) stop("One of 'distance' or 'Data' is required")
   if (is.null(distance)) distance <- as.matrix(dist(Data, method=method))
   if (class(distance)=="dist") distance <- as.matrix(distance)
   nc <- max(clusters)
@@ -557,7 +591,7 @@ dunn <- function(distance=NULL, clusters, Data=NULL, method="euclidean"){
       }
     }
   }
-  dunn <- min(interClust,na.rm=T)/max(intraClust)
+  dunn <- min(interClust,na.rm=TRUE)/max(intraClust)
   return(dunn)
 }
        
@@ -611,26 +645,23 @@ BHI <- function(statClust,annotation,names=NULL,category="all") {
   ## Case 2
   ## Name of annotation package provided by user
   ## Gene names assumed to correspond with rownames
-  ## Requires Biobase, annot
+  ## Requires Biobase, annotation
   ## Gene names and type of id provided by user
   ##  category <- match.arg(category,c("all","BP","CC","MF"))
   switch(annotation,
          entrezgene = {
-           goTerms <- GOLOCUSID2GO[names]
+           goTerms <- GOENTREZID2GO[names]
          },
          {
-##           if(!require(id,character.only=TRUE)) {
-##             source("http://bioconductor.org/biocLite.R")
-##             biocLite(id)
-##           }
-##           if(!require("annotate",character.only=TRUE)) {
-##             source("http://bioconductor.org/biocLite.R")
-##             biocLite("annotate")
-##           }
-##           Data <- match.fun(id)
            if(!require(annotation,character.only=TRUE)) {
-             stop(paste("package",annotation,"not found",sep=" "))
+             cat(paste("package",annotation,"not found, attempting download from Bioconductor\n",
+                       sep=" "))
+             source("http://bioconductor.org/biocLite.R")
+             try(biocLite(annotation))
            }
+##           if(!require(annotation,character.only=TRUE)) {
+##             stop(paste("package",annotation,"not found",sep=" "))
+##           }
            goTerms <- getGO(names,annotation)
 
          })
@@ -724,16 +755,18 @@ BSI <- function(statClust,statClustDel,annotation,names=NULL,category="all", goT
   
   switch(annotation,
          entrezgene = {
-           goTerms <- GOLOCUSID2GO[names]
+           goTerms <- GOENTREZID2GO[names]
          },
          {
-##           if(!require(id,character.only=TRUE)) {
-##             source("http://bioconductor.org/biocLite.R")
-##             biocLite(id)
+         if(!require(annotation,character.only=TRUE)) {
+           cat(paste("package",annotation,"not found, attempting download from Bioconductor\n",
+                     sep=" "))
+           source("http://bioconductor.org/biocLite.R")
+           try(biocLite(annotation))
+         }
+##           if(!require(annotation,character.only=TRUE)) {
+##             stop(paste("package",annotation,"not found",sep=" "))
 ##           }
-           if(!require(annotation,character.only=TRUE)) {
-             stop(paste("package",annotation,"not found",sep=" "))
-           }
            goTerms <- getGO(names,annotation)
          })
 
@@ -843,7 +876,7 @@ getCells <- function(tree, neighb.level, n){
 
 sota <- function(data, maxCycles, maxEpochs=1000, distance="euclidean",
 			wcell=.01, pcell=.005, scell=.001, delta=.0001, neighb.level=0,
-			maxDiversity = .9, unrest.growth=T, ...){
+			maxDiversity = .9, unrest.growth=TRUE, ...){
 	tree <- sota.init(data)
 	pr <- 4:ncol(tree)
 	n <- 3
@@ -909,7 +942,7 @@ sota <- function(data, maxCycles, maxEpochs=1000, distance="euclidean",
 		tree <- newCells$tree
 		n <- newCells$n
 		Node.Split <- newCells$toSplit
-		if(max(Res.V) < maxDiversity & unrest.growth==F)
+		if(max(Res.V) < maxDiversity & unrest.growth==FALSE)
 			break
 	}
 
@@ -940,14 +973,14 @@ trainLeaves <- function(data, tree, clust, pr, wcell, distance, n, delta){
 		if(!is.element(i, clust))
 			next
 		temp <- matrix(data[clust==i,], ncol=nc)
-		converged <- F
+		converged <- FALSE
 		init.err <- getCellResource(temp, tree[i,pr], distance)
 		while(!converged){
 			for(j in 1:nrow(temp))
 				tree[i, pr] <- tree[i, pr]+wcell*(temp[j,]-tree[i, pr])	
 		
 			last.err <- getCellResource(temp, tree[i,pr], distance)
-			converged <- ifelse(abs((last.err-init.err)/last.err) < delta, T, F)
+			converged <- ifelse(abs((last.err-init.err)/last.err) < delta, TRUE, FALSE)
 			init.err <- last.err
 		}
 	}

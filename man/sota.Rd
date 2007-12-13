@@ -8,7 +8,7 @@
 \usage{
 sota(data, maxCycles, maxEpochs = 1000, distance = "euclidean", wcell = 0.01, 
      pcell = 0.005, scell = 0.001, delta = 1e-04, neighb.level = 0, 
-     maxDiversity = 0.9, unrest.growth = T, ...)
+     maxDiversity = 0.9, unrest.growth = TRUE, ...)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{

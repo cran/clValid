@@ -163,7 +163,13 @@
   \code{\link[cluster]{fanny}}, and \code{\link[cluster]{pam}} in package \pkg{cluster},
   \code{\link[kohonen]{som}} in package \pkg{kohonen}, \code{\link[mclust]{Mclust}}  
   in package \pkg{mclust}, and \code{\link{sota}}.
-  
+
+  For additional help on the validation measures see
+  \code{\link{connectivity}},   \code{\link{dunn}},
+  \code{\link{stability}}, 
+  \code{\link{BHI}}, and 
+  \code{\link{BSI}}. 
+
 }
 
 

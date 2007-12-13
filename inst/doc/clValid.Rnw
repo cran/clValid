@@ -584,7 +584,7 @@ For further description of the dataset and the experiments the reader is referre
 %example.  Run times can be reduced by removing some of the clustering
 %methods from the validation.
 
-NOTE: The following example uses package \pkg{mclust}, see the note
+NOTE: The clValid package uses package \pkg{mclust}, see the note
 below for usage.
 
 
@@ -596,6 +596,18 @@ We begin by loading the dataset:
 <<mouse>>=
 data(mouse)
 @ 
+This dataset has the typical format found in  microarray
+data, with the rows as genes (variables) and the columns as the
+samples. 
+% Although this is a common paradigm for those who routinely
+% analyze high throughput genomic data, 
+Although this is a transposition of the data structure used for more
+conventional statistics (rows are samples, columns are variables),
+in both cases the typical goal is to cluster the rows based on the
+columns (although, in microarray data analysis the samples are also
+commonly clustered).  Hence, the \rf{clValid} function assumes that
+the rows of the input matrix are the intended items to be clustered.
+
 We want to evaluate the results from a clustering analysis, using the
 clustering algorithms UPGMA, PAM, and K-means.   Since the genes fall
 into one of two groups, up or down-regulated in the neural
@@ -954,6 +966,20 @@ calculate the biological validation measures, so that the information
 contained in the GO database can be used to assist in the cluster
 validation process.
 
+
+%In microarray analysis, it is common to  cluster both genes and samples
+The illustration for the \pkg{clValid} package we have given
+here focuses on clustering genes, but it is common in  microarray
+analysis to cluster both genes and samples to create a ``heatmap''.
+Though the ``biological'' validation measures are specifically
+designed for validation of clustering genes, the other measures could
+also be used with clustering of samples in a microarray experiment.
+Also, for microarray data,  it is a good idea to limit the number of
+genes being clustered to a small subset ($100\sim 600$) of the
+thousands of expression measures routinely available on a microarray,
+both for computational and visualization purposes.  Typically, some
+initial pre-selection of the genes based on $t$-statistics,
+$p$-values, or expression ratios is performed.
 
 There are several R packages that also perform cluster validation and are available from
 \href{http://www.r-project.org}{CRAN} or

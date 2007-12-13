@@ -2,7 +2,9 @@
 importFrom(graphics, plot)
 exportClasses(clValid)
 exportMethods(clusters, clusterMethods, nClusters, measNames, measures, optimalScores, plot, print, show, summary)
-export(clValid, sota, plot.sota, print.sota)
+S3method(print,sota)
+S3method(plot,sota)
+export(clValid, sota, dunn, connectivity, BHI, BSI, stability, matchGO)
 
 
 
