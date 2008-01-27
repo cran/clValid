@@ -77,17 +77,17 @@ setMethod("summary","clValid",
             names(best) <- names(bestMeth) <- names(bestNc) <- measNames
             minmeas <- c("APN", "AD", "ADM", "FOM", "Connectivity")
             maxmeas <- c("BHI","BSI","Dunn","Silhouette")
-                                        ## Measures to minimize
+            ## Measures to minimize
             if (any(a <- minmeas%in%measNames)) {
-              best[minmeas[a]] <- apply(measures(object)[minmeas[a],,,drop=FALSE],1,min)
-              bestInd <- apply(measures(object)[minmeas[a],,,drop=FALSE],1,function(x) which(x==min(x),arr.ind=TRUE)[1,])
+              best[minmeas[a]] <- apply(measures(object)[minmeas[a],,,drop=FALSE],1,min,na.rm=TRUE)
+              bestInd <- apply(measures(object)[minmeas[a],,,drop=FALSE],1,function(x) which(x==min(x,na.rm=TRUE),arr.ind=TRUE)[1,])
               bestNc[minmeas[a]] <- nClusters(object)[bestInd[1,]]
               bestMeth[minmeas[a]] <- clusterMethods(object)[bestInd[2,]]
             }
-                                        ## Measures to maximize
+            ## Measures to maximize
             if (any(a <- maxmeas%in%measNames)) {
-              best[maxmeas[a]] <- apply(measures(object)[maxmeas[a],,,drop=FALSE],1,max)
-              bestInd <- apply(measures(object)[maxmeas[a],,,drop=FALSE],1,function(x) which(x==max(x),arr.ind=TRUE)[1,])
+              best[maxmeas[a]] <- apply(measures(object)[maxmeas[a],,,drop=FALSE],1,max,na.rm=TRUE)
+              bestInd <- apply(measures(object)[maxmeas[a],,,drop=FALSE],1,function(x) which(x==max(x,na.rm=TRUE),arr.ind=TRUE)[1,])
               bestNc[maxmeas[a]] <- nClusters(object)[bestInd[1,]]
               bestMeth[maxmeas[a]] <- clusterMethods(object)[bestInd[2,]]
             }
@@ -354,10 +354,18 @@ vClusters <- function(mat,clMethod,nClust,nclustMax, validation,
            sota = {
              clusterObj[[ind]] <- sota(mat,nc-1)
              cluster <- clusterObj[[ind]]$clust
+
            },
            ## otherwise - hierarchical, diana, agnes
            {cluster <- cutree(clusterObj,nc)})
 
+    if(length(table(cluster))!=nc) {
+      warning(paste(clMethod, "unable to find",nc,"clusters, returning NA for these validation measures"))
+      measures[,ind] <- NA
+      ind <- ind+1
+      next()
+    }
+    
     ## internal validation measures
     if ("internal"%in%validation) {
       measures["Dunn",ind] <- dunn(Dist ,cluster)
@@ -402,7 +410,7 @@ vClusters <- function(mat,clMethod,nClust,nclustMax, validation,
                  clusterDel <- Mclust(matDel,nc, ...)$classification
                },
                som = {
-                 hsdel <- som(matDel, grid=somgrid(1,nc), ...)
+                 hsdel <- try(som(matDel, grid=somgrid(1,nc), ...))
                  clusterDel <- hsdel$unit.classif
                },
                pam = {
@@ -809,228 +817,228 @@ BSI <- function(statClust,statClustDel,annotation,names=NULL,category="all", goT
 
 
 sota.init <- function(data){
-	nodes <- matrix(0, nrow(data)*2, 3+ncol(data))
-	if(is.null(colnames(data)))
-		colnames(data) <- paste("V", 1:ncol(data))
-	colnames(nodes) <- c("ID", "anc", "cell", colnames(data))
-	nodes[,"ID"]=1:(nrow(data)*2)	
+  nodes <- matrix(0, nrow(data)*2, 3+ncol(data))
+  if(is.null(colnames(data)))
+    colnames(data) <- paste("V", 1:ncol(data))
+  colnames(nodes) <- c("ID", "anc", "cell", colnames(data))
+  nodes[,"ID"]=1:(nrow(data)*2)	
 
-	nodes[1,] <- c(1, 0, 0, apply(data,2,mean))
-	nodes[2,] <- c(2, 1, 1, nodes[1,][-c(1,2,3)])
-	nodes[3,] <- c(3, 1, 1, nodes[1,][-c(1,2,3)])
-	return(nodes)
+  nodes[1,] <- c(1, 0, 0, apply(data,2,mean))
+  nodes[2,] <- c(2, 1, 1, nodes[1,][-c(1,2,3)])
+  nodes[3,] <- c(3, 1, 1, nodes[1,][-c(1,2,3)])
+  return(nodes)
 }
 
 dist.fn <- function(input, profile, distance){
-	if(distance=="correlation")
-		return(1-cor(input,profile))
-	else
-		return(sqrt(sum((input-profile)^2)))
+  if(distance=="correlation")
+    return(1-cor(input,profile))
+  else
+    return(sqrt(sum((input-profile)^2)))
 }
 
 cl.ID <- function(clust, old.cl, new.cl){
-	for(i in 1:length(clust))
-		clust[i] <- new.cl[which(old.cl==clust[i])]
-	clust
+  for(i in 1:length(clust))
+    clust[i] <- new.cl[which(old.cl==clust[i])]
+  clust
 }
 
 getResource <- function(data, tree, clust, distance, pr){
-	dist <- rep(0, length(clust))
-	resource <- rep(0, max(clust))
-	
-	for(i in unique(clust)){
-		temp <- data[clust==i,]
-		if(is.vector(temp))
-			temp <- matrix(temp, nrow=1, ncol=ncol(data))
-		if(distance=="correlation")
-			resource[i] <- mean(apply(temp, 1, dist.fn, profile=tree[i,pr], 
+  dist <- rep(0, length(clust))
+  resource <- rep(0, max(clust))
+  
+  for(i in unique(clust)){
+    temp <- data[clust==i,]
+    if(is.vector(temp))
+      temp <- matrix(temp, nrow=1, ncol=ncol(data))
+    if(distance=="correlation")
+      resource[i] <- mean(apply(temp, 1, dist.fn, profile=tree[i,pr], 
 				distance=distance))
-		else
-			resource[i] <- mean(apply(temp, 1, dist.fn, profile=tree[i,pr], 
+    else
+      resource[i] <- mean(apply(temp, 1, dist.fn, profile=tree[i,pr], 
 				distance=distance))}
-	resource
+  resource
 }
 
 getCells <- function(tree, neighb.level, n){
-	or.n <- n
-	cells <- c(n-1,n)
-	for(i in 1:(neighb.level+1)){
-		n  <- tree[n, "anc"]
-		if(n==1)
-			break
-	}
-	for(j in 2:(or.n-2)){
-		z <- j
-		if(tree[j,"cell"]!=1)
-			next
-		while(z > 0){
-			z <- tree[z, "anc"]
-			if(z==n){
-				cells <- c(cells, j)
-				break}
-		}
-	}
-	return(tree[cells,])
+  or.n <- n
+  cells <- c(n-1,n)
+  for(i in 1:(neighb.level+1)){
+    n  <- tree[n, "anc"]
+    if(n==1)
+      break
+  }
+  for(j in 2:(or.n-2)){
+    z <- j
+    if(tree[j,"cell"]!=1)
+      next
+    while(z > 0){
+      z <- tree[z, "anc"]
+      if(z==n){
+        cells <- c(cells, j)
+        break}
+    }
+  }
+  return(tree[cells,])
 }
 
 
 sota <- function(data, maxCycles, maxEpochs=1000, distance="euclidean",
-			wcell=.01, pcell=.005, scell=.001, delta=.0001, neighb.level=0,
-			maxDiversity = .9, unrest.growth=TRUE, ...){
-	tree <- sota.init(data)
-	pr <- 4:ncol(tree)
-	n <- 3
-	genes<- 1:nrow(data)
-	clust <- rep(1, length(genes))
-	Node.Split <- 1
-	
-	for(k in 1:maxCycles){                                #loop for the Cycles
-		trainNode <- Node.Split
-		trainSamp <- genes[clust==trainNode]
-		curr.err <- 1e10
-		ep <- 1
-		while(ep <= maxEpochs){	      			#loop for the Epochs
-			last.err <- 0
-			left.ctr <- right.ctr <- 0
-			left.d <- right.d <- 0
-			for(i in trainSamp){
-				cells <- tree[c(n-1,n),]
-				dist <- rep(0, nrow(cells))
-				for(j in 1:2)
-					dist[j] <- dist.fn(data[i,], cells[j,pr], distance=distance)
-											
-				or <- which.min(dist)
-				if(or==1)
-					left.ctr <- left.ctr + 1
-				else
-					right.ctr<- right.ctr + 1
-				
-				closest <- cells[or,1]				
-				sis <- ifelse(closest%%2==0,closest+1,closest-1)
-				sis.is.cell <- ifelse(tree[sis,"cell"]== 1, 1, 0)
-				
-				##   updating the cell and its neighbourhood
-				if(sis.is.cell==1){
-					parent <- tree[closest, "anc"]
-					tree[closest, pr] <- tree[closest, pr]+wcell*(data[i,]-tree[closest, pr])
-					tree[sis, pr] <- tree[sis, pr]+scell*(data[i,]-tree[sis,pr])
-					tree[parent, pr] <- tree[parent, pr]+pcell*(data[i,]-tree[parent, pr])
-				}
-				else
-				{
-					tree[closest, pr] <- tree[closest, pr]+wcell*(data[i,]-tree[closest, pr])
-				}
-			}
-			cells <- tree[c(n-1,n),]
-			for(i in trainSamp){
-				for(j in 1:2)
-					dist[j] <- dist.fn(data[i,], cells[j,pr], distance=distance)
-				last.err <- last.err+min(dist)}
-			last.err <- last.err/length(trainSamp)
-			
-			if(ifelse(last.err==0, 0, abs((curr.err-last.err)/last.err)) < delta
-			   && left.ctr !=0 && right.ctr !=0)
-				break
-			ep <- ep + 1
-			curr.err <- last.err
-		}
-		clust <- assignGenes(data, trainSamp, clust, tree, n, distance, pr, neighb.level)
-		Res.V <- getResource(data, tree, clust, distance, pr)
-		if(k==maxCycles)
-			break  ## do not split the cell 
-		newCells <- splitNode(Res.V, tree, n)
-		tree <- newCells$tree
-		n <- newCells$n
-		Node.Split <- newCells$toSplit
-		if(max(Res.V) < maxDiversity & unrest.growth==FALSE)
-			break
-	}
+                 wcell=.01, pcell=.005, scell=.001, delta=.0001, neighb.level=0,
+                 maxDiversity = .9, unrest.growth=TRUE, ...){
+  tree <- sota.init(data)
+  pr <- 4:ncol(tree)
+  n <- 3
+  genes<- 1:nrow(data)
+  clust <- rep(1, length(genes))
+  Node.Split <- 1
+  
+  for(k in 1:maxCycles){                                #loop for the Cycles
+    trainNode <- Node.Split
+    trainSamp <- genes[clust==trainNode]
+    curr.err <- 1e10
+    ep <- 1
+    while(ep <= maxEpochs){	      			#loop for the Epochs
+      last.err <- 0
+      left.ctr <- right.ctr <- 0
+      left.d <- right.d <- 0
+      for(i in trainSamp){
+        cells <- tree[c(n-1,n),]
+        dist <- rep(0, nrow(cells))
+        for(j in 1:2)
+          dist[j] <- dist.fn(data[i,], cells[j,pr], distance=distance)
+        
+        or <- which.min(dist)
+        if(or==1)
+          left.ctr <- left.ctr + 1
+        else
+          right.ctr<- right.ctr + 1
+        
+        closest <- cells[or,1]				
+        sis <- ifelse(closest%%2==0,closest+1,closest-1)
+        sis.is.cell <- ifelse(tree[sis,"cell"]== 1, 1, 0)
+        
+        ##   updating the cell and its neighbourhood
+        if(sis.is.cell==1){
+          parent <- tree[closest, "anc"]
+          tree[closest, pr] <- tree[closest, pr]+wcell*(data[i,]-tree[closest, pr])
+          tree[sis, pr] <- tree[sis, pr]+scell*(data[i,]-tree[sis,pr])
+          tree[parent, pr] <- tree[parent, pr]+pcell*(data[i,]-tree[parent, pr])
+        }
+        else
+          {
+            tree[closest, pr] <- tree[closest, pr]+wcell*(data[i,]-tree[closest, pr])
+          }
+      }
+      cells <- tree[c(n-1,n),]
+      for(i in trainSamp){
+        for(j in 1:2)
+          dist[j] <- dist.fn(data[i,], cells[j,pr], distance=distance)
+        last.err <- last.err+min(dist)}
+      last.err <- last.err/length(trainSamp)
+      
+      if(ifelse(last.err==0, 0, abs((curr.err-last.err)/last.err)) < delta
+         && left.ctr !=0 && right.ctr !=0)
+        break
+      ep <- ep + 1
+      curr.err <- last.err
+    }
+    clust <- assignGenes(data, trainSamp, clust, tree, n, distance, pr, neighb.level)
+    Res.V <- getResource(data, tree, clust, distance, pr)
+    if(k==maxCycles)
+      break  ## do not split the cell 
+    newCells <- splitNode(Res.V, tree, n)
+    tree <- newCells$tree
+    n <- newCells$n
+    Node.Split <- newCells$toSplit
+    if(max(Res.V) < maxDiversity & unrest.growth==FALSE)
+      break
+  }
 
-	tree <- trainLeaves(data, tree, clust, pr, wcell, distance, n, delta)
-	Res.V <- getResource(data, tree, clust, distance, pr)
-	Res.V <- Res.V[Res.V!=0]
-	if(distance=="correlation")
-		Res.V <- 1-Res.V
+  tree <- trainLeaves(data, tree, clust, pr, wcell, distance, n, delta)
+  Res.V <- getResource(data, tree, clust, distance, pr)
+  Res.V <- Res.V[Res.V!=0]
+  if(distance=="correlation")
+    Res.V <- 1-Res.V
 
-	treel <- tree[tree[,"cell"]==1,]
-	old.cl <- treel[,1]
-	treel[,1] <- 1:nrow(treel)
-	old.clust <- clust
-		
-	clust <- cl.ID(old.clust, old.cl, 1:nrow(treel))
-	
-	totals <- table(clust)
-	out <- list(data=data, c.tree=tree[1:n,], tree=treel, clust=clust, 
-			totals=totals, dist=distance, diversity=Res.V)
-	
-	class(out) <- "sota"
-	return(out)
+  treel <- tree[tree[,"cell"]==1,]
+  old.cl <- treel[,1]
+  treel[,1] <- 1:nrow(treel)
+  old.clust <- clust
+  
+  clust <- cl.ID(old.clust, old.cl, 1:nrow(treel))
+  totals <- table(clust)
+  
+  out <- list(data=data, c.tree=tree[1:n,], tree=treel, clust=clust, 
+              totals=totals, dist=distance, diversity=Res.V)
+  
+  class(out) <- "sota"
+  return(out)
 }
 
 trainLeaves <- function(data, tree, clust, pr, wcell, distance, n, delta){
-	nc <- ncol(data)
-	for(i in 1:n){
-		if(!is.element(i, clust))
-			next
-		temp <- matrix(data[clust==i,], ncol=nc)
-		converged <- FALSE
-		init.err <- getCellResource(temp, tree[i,pr], distance)
-		while(!converged){
-			for(j in 1:nrow(temp))
-				tree[i, pr] <- tree[i, pr]+wcell*(temp[j,]-tree[i, pr])	
-		
-			last.err <- getCellResource(temp, tree[i,pr], distance)
-			converged <- ifelse(abs((last.err-init.err)/last.err) < delta, TRUE, FALSE)
-			init.err <- last.err
-		}
-	}
-	return(tree)
+  nc <- ncol(data)
+  for(i in 1:n){
+    if(!is.element(i, clust))
+      next
+    temp <- matrix(data[clust==i,], ncol=nc)
+    converged <- FALSE
+    init.err <- getCellResource(temp, tree[i,pr], distance)
+    while(!converged){
+      for(j in 1:nrow(temp))
+        tree[i, pr] <- tree[i, pr]+wcell*(temp[j,]-tree[i, pr])	
+      
+      last.err <- getCellResource(temp, tree[i,pr], distance)
+      converged <- ifelse(abs((last.err-init.err)/last.err) < delta, TRUE, FALSE)
+      init.err <- last.err
+    }
+  }
+  return(tree)
 }
 
 
 assignGenes <- function(data, Sample, clust, tree, n, distance, pr, neighb.level){
-	if(neighb.level==0)
-		cells <- tree[c(n-1,n),]	
-	else	
-		cells <- getCells(tree, neighb.level, n)
+  if(neighb.level==0)
+    cells <- tree[c(n-1,n),]	
+  else	
+    cells <- getCells(tree, neighb.level, n)
 
-	for(i in Sample){
-		dist <- rep(0, nrow(cells))
-		for(j in 1:nrow(cells))
-			dist[j] <- dist.fn(data[i,], cells[j,pr], distance)
-		or <- which.min(dist)
-		closest <- cells[or,1]	
-		clust[i] <- closest
-	}
-	clust
+  for(i in Sample){
+    dist <- rep(0, nrow(cells))
+    for(j in 1:nrow(cells))
+      dist[j] <- dist.fn(data[i,], cells[j,pr], distance)
+    or <- which.min(dist)
+    closest <- cells[or,1]	
+    clust[i] <- closest
+  }
+  clust
 }
 
 splitNode <- function(Res.V, tree, n){
-	maxheter <- which.max(Res.V)
-	cl.to.split <- tree[maxheter,1]
-	tree[n<-n+1,-1] <- tree[cl.to.split,-1]
-	tree[n, "anc"] <- cl.to.split
-	tree[n<-n+1,-1] <- tree[cl.to.split,-1]
-	tree[n, "anc"] <- cl.to.split
-	tree[cl.to.split, "cell"] <- 0
-	return(list(tree=tree, n=n, toSplit=cl.to.split))
+  maxheter <- which.max(Res.V)
+  cl.to.split <- tree[maxheter,1]
+  tree[n<-n+1,-1] <- tree[cl.to.split,-1]
+  tree[n, "anc"] <- cl.to.split
+  tree[n<-n+1,-1] <- tree[cl.to.split,-1]
+  tree[n, "anc"] <- cl.to.split
+  tree[cl.to.split, "cell"] <- 0
+  return(list(tree=tree, n=n, toSplit=cl.to.split))
 }
 
 
-	
+
 getCellResource <- function(temp, profile, distance){
-	if(distance=="correlation")
-		resource <- mean(apply(temp, 1, dist.fn, profile,
-			distance=distance))
-	else(distance=="euclidean")
-		resource <- mean(apply(temp, 1, dist.fn, profile,
-			distance=distance))
-	resource
+  if(distance=="correlation")
+    resource <- mean(apply(temp, 1, dist.fn, profile,
+                           distance=distance))
+  else(distance=="euclidean")
+  resource <- mean(apply(temp, 1, dist.fn, profile,
+                         distance=distance))
+  resource
 }
 
 print.sota <- function(x, ...){
-  results <- as.matrix(cbind(x$tree[,1], as.numeric(x$totals),
-                             x$diversity))
+  results <- as.matrix(cbind(as.numeric(names(x$totals)), as.numeric(x$totals),
+                             x$diversity))  ## changed
   colnames(results) <- c("ID","Size", "Diversity")
   rownames(results) <- rep("", nrow(results))
   cat("\nClusters:\n")
@@ -1071,15 +1079,16 @@ plot.sota <- function(x, cl=0, ...){
   ylim = c(min(x$data), max(x$data))
   pr <- 4:ncol(x$tree)
   if(cl==0)
-    cl.to.print <- 1:max(x$clust) else
-    cl.to.print <- cl
+    cl.to.print <- 1:length(table(x$clust)) else  ## changed
+  cl.to.print <- cl
+  cl.id <- sort(unique(x$clust))  ## changed
 
   for(i in cl.to.print){
     plot(1:ncol(x$data), x$tree[i, pr], col="red", type="l",
          ylim=ylim, xlab=paste("Cluster ",i), ylab="Expr. Level", ...)
     legend("topleft", legend=paste(x$totals[i], " Genes"), cex=.7, 
            text.col="navy", bty="n")
-    cl <- x$data[x$clust==i,]
+    cl <- x$data[x$clust==cl.id[i],]  ## changed
     if(is.vector(cl))
       cl <- matrix(cl, nrow=1)
     for(j in 1:x$totals[i])

@@ -868,7 +868,7 @@ plots of the measures given in Figures \ref{fig:BHI2} and
 \ref{fig:BSI2} are also very similar to the previous plots.
 Notice again that hierarchical clustering has the best performance on
 the BSI measurement over the range for the number of clusters, 
-but it is uniformly the worst under the BHI measure validation.  
+but does not score as well under the BHI measure validation.  
 
 
 <<BHI2,eval=FALSE, echo=FALSE>>=
@@ -910,8 +910,12 @@ extracted from a \rf{clValid()} object for further analysis, using the
 \rf{clusters()} method.  Here, we
 extract the results from hierarchical clustering, to plot the
 dendogram and view the observations that are grouped together at the
-various levels of the topology.  The dendogram is plotted in Figure
-\ref{fig:hplot}, and the genes belonging to the top two clusters are
+various levels of the topology.  
+The dendrogram is plotted in Figure
+\ref{fig:hplot}, with the genes belonging to the
+``Growth/Differentiation'' (GD) and ``Transcription factor'' (TF) functional
+classes labeled. 
+The genes belonging to the top two clusters are
 cross-classified with their functional annotation given in the
 dataset. Of potential interest, the second cluster contains no
 genes in the ``EST'' or ``Miscellaneous'' categories.  Further
@@ -922,7 +926,9 @@ hc <- clusters(bio,"hierarchical")
 @ 
 
 <<hplot,eval=FALSE>>=
-plot(hc)
+mfc <- factor(mouse$FC, labels=c("Re","EST","GD","KP","Met","Mis","St","TF","U"))
+tf.gd <- ifelse(mfc%in%c("GD","TF"),levels(mfc)[mfc],"")
+plot(hc, labels=tf.gd, cex=0.7, hang=-1, main="Mouse Cluster Dendrogram")
 @ 
 
 \begin{figure}
