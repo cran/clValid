@@ -27,7 +27,7 @@
 \usepackage{relsize}
 \usepackage[mathcal]{euscript}
 \usepackage[round]{natbib}
-\usepackage{myCommands}
+\usepackage{gbMacros}
 \usepackage{Sweave}
 %\usepackage{Sweave}
 

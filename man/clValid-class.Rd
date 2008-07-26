@@ -78,7 +78,7 @@
       
       Additional arguments:
       \describe{
-	\item{method = clMethods(object)}{The clustering method(s)
+	\item{\code{method = clMethods(object)}}{The clustering method(s)
 	to extract.}
       }
     }
@@ -89,7 +89,7 @@
       
       Additional arguments:
       \describe{
-	\item{measures = measNames(object)}{ The validation measure(s)
+	\item{\code{measures = measNames(object)}}{ The validation measure(s)
 	to extract.}
       }
     }
@@ -101,7 +101,7 @@
       
       Additional arguments:
       \describe{
-	\item{measures = measNames(object)}{ The validation measure(s)
+	\item{\code{measures = measNames(object)}}{ The validation measure(s)
 	to extract.}
     }}
     \item{plot}{\code{signature(x = "clValid", y = "missing")}: Plots
@@ -109,15 +109,15 @@
       
       Additional arguments:
       \describe{
-	\item{measures=measNames(x)}{ The validation measures to
+	\item{\code{measures=measNames(x)}}{ The validation measures to
 	plot.}
-	\item{legend=TRUE}{ If TRUE provides a legend.}
-	\item{legendLoc="topright"}{ The location of the legend.}
-	\item{main=NULL}{ Title of graph.}
-	\item{pch=NULL}{ Plotting characters to use.}
-	\item{type="b"}{ Type of plot.}
-	\item{ask=prod(par("mfcol")) < length(measures) &&
-	    dev.interactive()}{ Logical.  If \code{TRUE} the user is
+	\item{\code{legend=TRUE}}{ If TRUE provides a legend.}
+	\item{\code{legendLoc="topright"}}{ The location of the legend.}
+	\item{\code{main=NULL}}{ Title of graph.}
+	\item{\code{pch=NULL}}{ Plotting characters to use.}
+	\item{\code{type="b"}}{ Type of plot.}
+	\item{\code{ask=prod(par("mfcol")) < length(measures) &&
+	    dev.interactive()}}{ Logical.  If \code{TRUE} the user is
 	prompted before each plot.}
       }
     }
@@ -129,7 +129,7 @@
       
       Additional arguments:
       \describe{
-	\item{digits = max(3,getOption("digits")-3)}{ The number
+	\item{\code{digits = max(3,getOption("digits")-3)}}{ The number
 	of significant digits to use.}
       }
     }

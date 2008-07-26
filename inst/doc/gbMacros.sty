@@ -1,0 +1,63 @@
+\newtheorem{preeg}{Example}
+%\def\thepreeg{\relax}
+%\newenvironment{}{eg}{\begin{preeg}\rm}{\end{preeg}}
+
+%\DefineShortVerb{\@}
+
+\newcommand{\beq}{\begin{equation}}
+\newcommand{\eeq}{\end{equation}}
+\newcommand{\beqa}{\begin{eqnarray}}
+\newcommand{\eeqa}{\end{eqnarray}}
+\newcommand{\beqano}{\begin{eqnarray*}}
+\newcommand{\eeqano}{\end{eqnarray*}}
+\newcommand{\benum}{\begin{enumerate}}
+\newcommand{\eenum}{\end{enumerate}}
+\newcommand{\bitem}{\begin{itemize}}
+\newcommand{\eitem}{\end{itemize}}
+\newcommand{\hlink}{\htmladdnormallink}
+\newcommand{\bs}[1]{\begin{slide}{#1}}
+\newcommand{\es}{\end{slide}}
+\newcommand{\bv}{\begin{verbatim}}
+\newcommand{\ev}{\end{verbatim}}
+\renewcommand{\vec}[1]{\mbox{\boldmath{$#1$}}}
+\newcommand{\nchoosek}[2]{\left(\begin{array}{c}#1\\#2\end{array}\right)}
+\newcommand{\bframe}{\begin{frame}[fragile]}
+\newcommand{\eframe}{\end{frame}}
+
+
+\def\E{\mathop{\rm E\,}\nolimits}
+\def\Var{\mathop{\rm Var}\nolimits}
+\def\Cov{\mathop{\rm Cov}\nolimits}
+
+
+\newcommand{\code}[1]{{\texttt{#1}}}
+\newcommand{\ro}[1]{{\texttt{\color{blue}{#1}}}}
+\newcommand{\rf}[1]{{\texttt{#1}}}
+\newcommand{\pkg}[1]{{\textit{#1}}}
+\newcommand{\rc}[1]{{\textit{#1}}}
+\newcommand{\Rmethod}[1]{{\textit{#1}}}
+\newcommand{\rfarg}[1]{{\texttt{#1}}}
+
+%\newcommand{\D}{\displaystyle}
+\newcommand{\T}{\textstyle}
+\newcommand{\ra}{\rightarrow}
+\newcommand{\Ra}{\Rightarrow}
+\newcommand{\tn}{\textnormal}
+\newcommand{\mbf}{\mathbf}
+\renewcommand{\bf}{\textbf}
+\renewcommand{\l}{\left}
+\renewcommand{\r}{\right}
+
+\newcommand{\sssty}{\scriptscriptstyle}
+\newcommand{\tpose}{{\scriptscriptstyle T}}
+\newcommand{\vtpose}[1]{\mathbf{#1}^{\scriptscriptstyle T}}
+\renewcommand{\mbf}{\mathbf}
+\newcommand{\dual}{{\mbox{\scriptsize dual \normalsize}}}
+\newcommand{\var}{{\mbox{var}}}
+\newcommand{\cvar}{{\mbox{cov}}}
+\newcommand{\minv}[1]{#1^{-1}}
+\newcommand{\cterm}{\minv{(C - B^\tpose \minv A B)}}
+\newcommand{\ctma}{\left( \alpha \sum_{k=1}^s y_{1k} +
+r_2(1-r_1)\sum_{k=1}^p y_{2k} \right)}
+\newcommand{\ctmb}{\left( \omega \sum_{k=1}^p y_{2k} +
+r_2(1-r_3) \sum_{k=1}^s y_{1k} \right)}

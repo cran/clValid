@@ -20,7 +20,7 @@
      "sec:discussion")
     (TeX-run-style-hooks
      "Sweave"
-     "myCommands"
+     "gbMacros"
      "natbib"
      "round"
      "euscript"
