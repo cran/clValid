@@ -13,7 +13,8 @@
 \usage{
 clValid(obj, nClust, clMethods = "hierarchical", validation =
 "stability", maxitems = 600, metric = "euclidean", method = "average",
-neighbSize = 10, annotation = "entrezgene", GOcategory = "all", goTermFreq=0.05, ...)
+neighbSize = 10, annotation = NULL, GOcategory = "all",
+goTermFreq=0.05, dropEvidence=NULL, verbose=FALSE, ...)
 }
 
 
@@ -48,7 +49,12 @@ neighbSize = 10, annotation = "entrezgene", GOcategory = "all", goTermFreq=0.05,
     categories to use for biological validation.  Can be one of "BP",
     "MF", "CC", or "all".}
   \item{goTermFreq}{For the
-      BSI, what threshold frequency of GO terms to use for functional annotation.}
+    BSI, what threshold frequency of GO terms to use for functional
+    annotation.}
+  \item{dropEvidence}{Which GO evidence codes to omit.  Either NULL or a
+    character vector, see 'Details' below.}
+  \item{verbose}{Logical - if TRUE will produce detailed output on the
+    progress of cluster validation.}
   \item{\dots}{Additional arguments to pass to the clustering functions.}
 }
 
@@ -115,26 +121,37 @@ neighbSize = 10, annotation = "entrezgene", GOcategory = "all", goTermFreq=0.05,
   at a time, and the cluster membership for genes with similar functional annotation is
   compared with the cluster membership using all available samples.
 
-  
   For biological validation, the user has two options.
   The first option is to explicity specify the
-  functional clustering of the genes via a named list.
-  Each item in the list corresponds to a functional class, and contains
-  a list of genes which are associated with that function.
+  functional clustering of the genes via either a named list or logical
+  matrix. In ``list'' format, each item in the list is a vector giving genes
+  belonging to a particular biological class.  In ``matrix'' format,
+  each column is a logical vector indicating which genes belong to the
+  biological class. \code{clValid} will convert the biological
+  annotation to matrix format internally if initially given in list format.
+
   The second option is to specify the appropriate
   annotation package from Bioconductor (\url{http://www.bioconductor.org})
   and GO terms to determine the functional classes of
   the genes.  To use the second option requires the \pkg{Biobase},
   \pkg{annotate}, and \pkg{GO} packages from Bioconductor, in addition
-  to the annotation package for the particular data type (these will not
-  be automatically loaded when \pkg{clValid} is loaded).
+  to the annotation package for the particular data type.
+  If the annotation package cannot be loaded, \code{clValid} will
+  attempt to automatically download the package from
+  \url{www.bioconductor.org} (using the
+  \file{biocLite.R} installation script).
 
   The \code{GOcategory} options are "MF", "BP", "CC", or "all",
   corresponding to molecular function, biological process, cellular
-  component, and all of the ontologies.  }}
-  %and will download the package (using the
-  %\file{biocLite.R} installation script from Bioconductor) if it is not
-  %currently available on the   
+  component, and all of the ontologies.
+
+  The \code{dropEvidence} argument indicates which GO evidence codes to
+  omit.  For example, "IEA" is a relatively weak association based only
+  on electronic information, and users may wish to omit this evidence
+  when determining the functional annotation classes.
+  
+}}
+
 
 
 }
@@ -145,27 +162,33 @@ neighbSize = 10, annotation = "entrezgene", GOcategory = "all", goTermFreq=0.05,
 
 }
 \references{
-  
-  Datta, S. and Datta, S. (2003).
-  Comparisons and validation of statistical clustering techniques for microarray gene expression data.
-  Bioinformatics 19(4): 459-466.
 
-  Datta, S. and Datta, S. (2006).
+  Brock, G., Pihur, V., Datta, S. and Datta, S. (2008)
+  clValid: An R Package for Cluster Validation
+  Journal of Statistical Software 25(4)
+  \url{http://www.jstatsoft.org/v25/i04}
+  
+  Datta, S. and Datta, S. (2003)
+  Comparisons and validation of statistical clustering techniques for microarray gene expression data.
+  Bioinformatics 19(4): 459-466
+
+  Datta, S. and Datta, S. (2006)
   Methods for evaluating clustering algorithms for gene expression data
   using a reference set of functional classes.
-  BMC Bioinformatics 7:397.
+  BMC Bioinformatics 7:397
+  \url{http://www.biomedcentral.com/1471-2105/7/397}
 
-  Handl, J., Knowles, K., and Kell, D. (2005).
+  Handl, J., Knowles, K., and Kell, D. (2005)
   Computational cluster validation in post-genomic data analysis.
-  Bioinformatics 21(15): 3201-3212.
-
+  Bioinformatics 21(15): 3201-3212
+  
 }
 
 \author{Guy Brock, Vasyl Pihur, Susmita Datta, Somnath Datta}
 \note{
-%   The only package which is automatically attached is \pkg{cluster}.  To
-%   use the clustering methods \code{som} and \code{Mclust} you will need
-%   to load the packages \pkg{som} and \pkg{mclust}, respectively.
+The only package which is automatically attached is \pkg{cluster}.  To
+use the clustering methods \code{som} and \code{Mclust} you will need
+to load the packages \pkg{kohonen} and \pkg{mclust}, respectively.
 
 Unless the the list of genes corresponding to functional classes is prespecified,
 to perform biological clustering validation
@@ -206,7 +229,7 @@ data(mouse)
 ## internal validation
 express <- mouse[1:25,c("M1","M2","M3","NC1","NC2","NC3")]
 rownames(express) <- mouse$ID[1:25]
-intern <- clValid(express, 2:6, clMethods=c("hierarchical","fanny","model"),
+intern <- clValid(express, 2:6, clMethods=c("hierarchical","kmeans","pam"),
                   validation="internal")
 
 ## view results
@@ -215,7 +238,7 @@ optimalScores(intern)
 plot(intern)
 
 ## stability measures
-stab <- clValid(express, 2:6, clMethods=c("hierarchical","fanny","model"),
+stab <- clValid(express, 2:6, clMethods=c("hierarchical","kmeans","pam"),
                 validation="stability")
 optimalScores(stab)
 plot(stab)
@@ -224,15 +247,15 @@ plot(stab)
 ## first way - functional classes predetermined
 fc <- tapply(rownames(express),mouse$FC[1:25], c)
 fc <- fc[-match( c("EST","Unknown"), names(fc))]
-bio <- clValid(express, 2:6, clMethods=c("hierarchical","fanny","model"),
+bio <- clValid(express, 2:6, clMethods=c("hierarchical","kmeans","pam"),
                validation="biological", annotation=fc)
 optimalScores(bio)
 plot(bio)
 
 ## second way - using Bioconductor
-if(require("Biobase") && require("annotate") && require("GO") && require("moe430a")) {
-  bio2 <- clValid(express, 2:6, clMethods=c("hierarchical","fanny","model"),
-                  validation="biological",annotation="moe430a",GOcategory="all")
+if(require("Biobase") && require("annotate") && require("GO.db") && require("moe430a.db")) {
+  bio2 <- clValid(express, 2:6, clMethods=c("hierarchical","kmeans","pam"),
+                  validation="biological",annotation="moe430a.db",GOcategory="all")
   optimalScores(bio2)
   plot(bio2)
 }

@@ -2,12 +2,13 @@
 % likely to be overwritten.
 %
 % \VignetteIndexEntry{clValid Overview}
-% \VignetteDepends{cluster, kohonen, class, mclust, Biobase, annotate, GO, moe430a}
+% \VignetteDepends{cluster, kohonen, class, mclust, Biobase, annotate,
+% GO.db, moe430a.db}
 % \VignetteKeywords{clustering, validation, stability measures, biological annotation, functional categories}
 % \VignettePackage{clValid}
 
 
-\SweaveOpts{engine=R,eps=FALSE,echo=TRUE, eval=TRUE}
+\SweaveOpts{engine=R,eps=FALSE,echo=TRUE} %%, eval=FALSE}
 
 \documentclass[11pt]{article}
 %\documentclass[article, shortnames]{jss}
@@ -42,8 +43,10 @@
 \author{Guy Brock, Vasyl
   Pihur, Susmita Datta, and Somnath Datta \\ \\
 Department of Bioinformatics and Biostatistics, University of
-Louisville \\
-\url{http://louisville.edu/~g0broc01/} }
+Louisville \\ \\
+%% \url{http://louisville.edu/~g0broc01/} \\ \\ 
+Note: A previous version of this manuscript was published in the \\
+\emph{Journal of Statistical Software} \citep{Bro2008}.}
 
 \title{\pkg{clValid}, an R package for cluster validation}
 
@@ -237,9 +240,10 @@ $1/j$ otherwise.  Then, for a particular clustering partition
 $\mathcal{C} = \{C_1, \ldots, C_K\}$ of the $N$ observations into $K$
 disjoint clusters, the connectivity is defined as 
 $$
-Conn(\mathcal{C}) = \sum\limits_{i=1}^N\sum\limits_{j=1}^M x_{i,nn_{i(j)}} \;.
+Conn(\mathcal{C}) = \sum\limits_{i=1}^N\sum\limits_{j=1}^L x_{i,nn_{i(j)}} \;,
 $$
-The connectivity has a value between zero and $\infty$ and should be minimized.
+where $L$ is a parameter giving the number of nearest neighbors to
+use.  The connectivity has a value between zero and $\infty$ and should be minimized.
 %The \code{neighbSize} argument to \rf{clValid()} specifies the number of
 %neighbors to use for the connectivity measure.
 
@@ -414,7 +418,9 @@ BHI(\mathcal{C},\mathcal{B}) = \frac{1}{K} \sum\limits_{k=1}^K
 \frac{1}{n_k(n_k-1)} \sum\limits_{i\neq j \in C_k} I\left(B(i)=B(j)\right)\,.
 $$
 Here $n_k = n(C_k \cap B)$ is the number of annotated genes in
-statistical cluster $C_k$. The BHI is in the range $[0,1]$, with
+statistical cluster $C_k$.  Note that if $n_k = 1$ or 0, i.e.~there is
+only one or no annotated genes in statistical cluster $C_k$, then a
+value of zero is added for that cluster.  The BHI is in the range $[0,1]$, with
 larger values corresponding to more biologically homogeneous clusters.
 
 \subsubsection*{Biological Stability Index (BSI)}
@@ -432,7 +438,10 @@ BSI(\mathcal{C}, \mathcal{B}) = \frac{1}{F}\sum\limits_{k=1}^F
 $$
 where $F$ is the total number of functional classes, $C^{i,0}$ is the statistical cluster containing observation $i$
 based on all the data, and $C^{j,\ell}$ is the statistical cluster
-containing observation $j$ when column $\ell$ is removed.  The BSI is
+containing observation $j$ when column $\ell$ is removed.  
+Note that if $n(B_k) = 0$ or 1,  i.e.~there are
+less than two genes belonging to functional class $B_k$, then a
+value of zero is taken for that class.  The BSI is
 in the range $[0,1]$, with larger values corresponding to more stable
 clusters of the functionally annotated genes.
 
@@ -584,19 +593,22 @@ For further description of the dataset and the experiments the reader is referre
 %example.  Run times can be reduced by removing some of the clustering
 %methods from the validation.
 
-NOTE: The clValid package uses package \pkg{mclust}, see the note
-below for usage.
+%NOTE: The clValid package uses package \pkg{mclust}, see the note
+%below for usage.
 
 
 <<prelim, echo=FALSE>>=
+options(prompt="R> ")
 library("clValid")
 @ 
+
 
 We begin by loading the dataset:
 <<mouse>>=
 data(mouse)
 @ 
-This dataset has the typical format found in  microarray
+
+his dataset has the typical format found in  microarray
 data, with the rows as genes (variables) and the columns as the
 samples. 
 % Although this is a common paradigm for those who routinely
@@ -621,7 +633,8 @@ should be noted that the user can request all three types of
 validation measures at once (which would also be more computationally efficient).
 
 
-\subsubsection*{Internal Validation}
+\subsection{Internal Validation}
+\label{subsec:ExInternal}
 
 The internal validation measures are the connectivity, Silhouette Width, and
 Dunn Index.   The neighborhood size for the connectivity is
@@ -650,14 +663,15 @@ summary(intern)
 Hierarchical clustering with two clusters performs the best in each
 case.  The validation measures can also be displayed graphically using
 the \rf{plot()} method.  Plots for individual measures can be requested
-using the \rfarg{measures} argument.  A legend is also included with each plot.  The default location of the
+using the \rfarg{measures} argument.  A legend is also included with
+each plot.  The default  location of the
 legend is the top right corner of each plot, this can be changed using
 the \rfarg{legendLoc} argument.  Here, we combine all three plots into
 a single figure and so suppress the legends in each individual plot.
 
 
 
-<<internPlot, eval=FALSE>>=
+<<internPlot, eval=TRUE>>=
 op <- par(no.readonly=TRUE)
 par(mfrow=c(2,2),mar=c(4,4,3,1))
 plot(intern, legend=FALSE)
@@ -690,7 +704,8 @@ For hierarchical clustering the optimal number of clusters is clearly
 two.  For PAM, a case could be made for using six clusters.
 
 
-\subsubsection*{Stability Validation}
+\subsection{Stability Validation}
+\label{subsec:ExStability}
 
 The stability measures include the APN, AD, ADM, and FOM.  The
 measures should be minimized in each case.  Stability validation
@@ -720,7 +735,7 @@ have omitted it from the figure.
 % omit FOM - very similar to AD
 
 
-<<stabPlot, eval=FALSE>>=
+<<stabPlot, eval=TRUE>>=
 par(mfrow=c(2,2),mar=c(4,4,3,1))
 plot(stab, measure=c("APN","AD","ADM"),legend=FALSE)
 plot(nClusters(stab),measures(stab,"APN")[,,1],type="n",axes=F,
@@ -756,7 +771,8 @@ For the ADM measure PAM with six clusters again has the best score,
 though the other methods outperform PAM for smaller numbers of clusters.
 
 
-\subsubsection*{Biological Validation}
+\subsection{Biological Validation}
+\label{subsec:ExBiological}
 
 
 There are two options for biological validation using the BHI and BSI
@@ -764,9 +780,13 @@ measures.  The first option is to explicitly
 specify the functional clustering of the genes.  This requires the
 user to predetermine the functional classes of the genes, e.g.~using
 an annotation software package like FatiGO \citep{Al2004} or FunCat \citep{Rue2004}.
-
-
-
+functional clustering of the genes can be specified via either a named list or logical
+matrix. In ``list'' format, each item in the list is a vector giving genes
+belonging to a particular biological class.  In ``matrix'' format,
+each column is a logical vector indicating which genes belong to the
+biological class. \code{clValid} will convert the biological
+annotation to matrix format internally if initially given in list format.
+  
 The functional categorization of the genes in the dataset \ro{mouse} were previously determined in
 \citet{Bha2007}, so these will be used initially to define the
 functional classes.  
@@ -778,6 +798,29 @@ bio <- clValid(express, 2:6, clMethods=c("hierarchical","kmeans","pam"),
                validation="biological", annotation=fc)
 @ 
 
+The user also has the option of reading in the biological annotation
+from an external file.  The required format is comma separated, with
+the first column indicating the biological functional category, and
+the remaining columns containing the gene identifiers for those genes
+belonging to that category.  Comma separated files are easily created
+from within the Excel program, and using 'CSV (Comma delimited)' for
+the 'Save as type' in the 'Save As' window.  The file ``fc.csv'' is
+included as an illustration, the format of the first two lines is:
+
+\begin{verbatim}
+ECM_Receptors, 1452671_s_at, 1423110_at, 1439381_x_at, 1450857_a_at
+Growth_Differentiation, 1448995_at, 1448147_at, 1421180_at, 1416855_at
+\end{verbatim}
+
+To read in the external biological annotation file, use the function
+\ro{readAnnotationFile}.  
+
+<<readExternalBiological, eval=TRUE>>=
+fc2 <- readAnnotationFile("fc.csv")
+## bio.fc2 <- clValid(express, 2:6, clMethods=c("hierarchical","kmeans","pam"),
+##                    validation="biological", annotation=fc2)
+## all.equal(measures(bio), measures(bio.fc2))
+@ 
 
 Recall that both the BHI and BSI should be maximized.  The optimal values for each measure are given below.
 <<bioOptimal, eval=TRUE>>=
@@ -789,12 +832,12 @@ does well.  Plots of the measures are given in Figures \ref{fig:BHI} and \ref{fi
 
 
 
-<<BHI,eval=FALSE, echo=FALSE>>=
+<<BHI,eval=TRUE, echo=FALSE>>=
 plot(bio, measure="BHI", legendLoc="topleft")
 @ 
 
 
-<<BSI,eval=FALSE, echo=FALSE>>=
+<<BSI,eval=TRUE, echo=FALSE>>=
 plot(bio, measure="BSI")
 @ 
 
@@ -844,16 +887,16 @@ used to determine the functional classes.
 
 To illustrate, the identifiers in the dataset \ro{mouse} are from the
 Affymetrix Murine Genome 430a GeneChip Array, with corresponding
-annotation package \pkg{moe430a} available from Bioconductor.  We
+annotation package \pkg{moe430a.db} available from Bioconductor.  We
 leave the \rfarg{goTermFreq} argument at its default level of 0.05,
 and use all available GO categories (\rfarg{GOcategory="all"}) for annotation.
 
 <<bioc, eval=TRUE>>=
-if(require("Biobase") && require("annotate") && require("GO") && require("moe430a")) {
+if(require("Biobase") && require("annotate") && require("GO.db") && require("moe430a.db")) {
   ## Need to know which affy chip was used in experiment
   ## affymetrix murine genome 430a genechip arrays
   bio2 <- clValid(express, 2:6, clMethods=c("hierarchical","kmeans","pam"),
-                  validation="biological",annotation="moe430a",GOcategory="all")
+                  validation="biological",annotation="moe430a.db",GOcategory="all")
 }
 
 @ 
@@ -862,20 +905,19 @@ if(require("Biobase") && require("annotate") && require("GO") && require("moe430
 if(exists("bio2")) optimalScores(bio2)
 @ 
 
-The optimal method and number of clusters for the two measures agree
-with those found using the predetermined functional classes, and the   
-plots of the measures given in Figures \ref{fig:BHI2} and
-\ref{fig:BSI2} are also very similar to the previous plots.
+
+The plots of the measures are given in Figures \ref{fig:BHI2} and
+\ref{fig:BSI2}.
 Notice again that hierarchical clustering has the best performance on
 the BSI measurement over the range for the number of clusters, 
 but does not score as well under the BHI measure validation.  
 
 
-<<BHI2,eval=FALSE, echo=FALSE>>=
+<<BHI2,eval=TRUE, echo=FALSE>>=
 if(exists("bio2")) plot(bio2, measure="BHI", legendLoc="topleft")
 @ 
 
-<<BSI2,eval=FALSE, echo=FALSE>>=
+<<BSI2,eval=TRUE, echo=FALSE>>=
 if(exists("bio2")) plot(bio2, measure="BSI")
 @ 
 
@@ -885,7 +927,7 @@ if(exists("bio2")) plot(bio2, measure="BSI")
 <<BHI2>>
 @ 
   \caption{Plot of the BHI measure, using annotation package
-    \pkg{moe430a} in Bioconductor.}
+    \pkg{moe430a.db} in Bioconductor.}
   \label{fig:BHI2}
 \end{figure}
 
@@ -895,14 +937,129 @@ if(exists("bio2")) plot(bio2, measure="BSI")
 <<BSI2>>
 @ 
   \caption{Plot of the BSI measure, using annotation package
-    \pkg{moe430a} in Bioconductor.}
+    \pkg{moe430a.db} in Bioconductor.}
   \label{fig:BSI2}
 \end{figure}
 
+The user can also limit the level of evidence used to determine GO
+annotation using the \texttt{dropEvidence} argument.  In particular,
+the "IEA" evidence code is a relatively weak association based only
+on electronic information, and users may wish to omit this evidence
+when determining the functional annotation classes.
+
+<<biocDE, eval=FALSE>>=
+if(require("Biobase") && require("annotate") && require("GO.db") && require("moe430a.db")) {
+  ## Need to know which affy chip was used in experiment
+  ## affymetrix murine genome 430a genechip arrays
+  bio2DE <- clValid(express, 2:6, clMethods=c("hierarchical","kmeans","pam"),
+                  validation="biological",annotation="moe430a.db",GOcategory="all",
+                  dropEvidence="IEA")
+  optimalScores(bio2DE)
+}
+@ 
+
+%In this case, dropping the ``IEA'' evidence code has a relatively larger effect on
+%the BHI score relative to the BSI score.  The optimal algorithm and
+%number of clusters remains the same for each score, though.
+
+%% Added 03/09/2009
+\subsection{Rank Aggregation}
+\label{subsec:ExRankAggreg}
+
+As we saw in all three examples, the order of clustering algorithms on
+each validation measure is rarely the same.
+Rank aggregation is helpful in reconciling the ranks and producing a
+``super"-list, which determines the  overall winner and also ranks all
+the clustering algorithms based on their performance as determined by all
+the validation measures simultaneously.
+This idea was introduced in the clustering context by \citet{Pih07},
+and the R package \pkg{RankAggreg} has functions for performing rank
+aggregation.  The package and associated
+functions are described in fuller detail in \citet{Pih09}.
+
+To illustrate, we cluster the \ro{mouse} microarray data using the
+hierarchical, K-means, and PAM algorithms with four to six clusters.
+Both internal and stability measures are used for validation.  
+
+<<RankAggreg>>=
+result <- clValid(express, 4:6, clMethods=c("hierarchical","kmeans","pam"), 
+                  validation=c("internal","stability"))
+res <- getRanksWeights(result)
+@
+    
+The \rf{getRanksWeights} function extracts the validation measures and
+order of the clustering algorithms for each validation measure to use
+as input for \rf{RankAggreg}.  The validation measures are used for
+calculating weighted distances.
+
+The top three ranking algorithms for each measure are given below:
+<<ranks>>=
+print(res$ranks[,1:3], quote=FALSE)
+@
+
+We see that PAM with six clusters performs best on four of the six
+measures, so picking an overall winner is relatively straightforward
+in this case.  However, in many cases there is no clearly best
+performing algorithm.  Also, it would be rather difficult to give the
+overall ordered list, and we may be interested in, say, the top three
+performing algorithms instead of restricting ourselves to a single set
+of results.  This can be accomplished using the \rf{RankAggreg}
+function, which searches for the ``master'' list which minimizes the
+distance between itself and the individual lists for each validation
+measure.  Two distances are available, the Spearman's footrule
+distance and Kendall's tau distance.  The two available search algorithms 
+are a cross-entropy Monte Carlo algorithm or a genetic algorithm
+(there is also a ``brute force'' search method which does an
+exhaustive search, but this is not recommended except for very small
+lists of five or fewer elements). Here, we perform rank aggregation
+using the default cross-entropy method with weighted Spearman's
+footrule to produce a ``top five'' overall list.
+
+<<RankAggreg, eval=TRUE>>=
+if(require("RankAggreg")) {
+  CEWS <- RankAggreg(x=res$ranks, k=5, weights=res$weights, seed=123, verbose=FALSE)
+  CEWS
+}
+@
+
+The top results are PAM with six clusters, then hierarchical
+clustering with six and five clusters.  Convergence was achieved in
+15 iterations, with a minimum objective function score of 2.679264.
+Since the search is stochastic using a different seed may produce a
+different result, but repeating the search using several different
+seeds gave the same result.  
+
+To get a visual representation of the results, a convenient
+\emph{plot} function is provided.  It takes the 
+object returned by the \emph{RankAggreg} function as its first
+argument and outputs  three side-by-side plots with useful information
+on the convergence properties and the final ranking.
+
+<<label=RankAggFig, echo=FALSE>>=
+plot(CEWS)
+@
+\begin{figure}[hp]
+\begin{center}
+<<label=RAFig, fig=TRUE>>=
+<<RankAggFig>>
+@
+\caption{Visual Representation of the aggregation results through the
+  \emph{plot()} function. The first  plot
+  in the top row shows the path of minimum values of the objective
+  function over time. The global minimum is  shown
+  in the top right corner. The histogram of the objective function
+  scores at the last iteration is displayed  in the
+  second plot. Looking at these two plots, one can get a general idea
+  about the rate of  convergence and the distribution
+  of candidate lists at the last iteration. The third plot at the bottom
+  shows the individual lists and the obtained solution
+  along with optional average ranking.}
+\end{center}
+\end{figure}
 
 
-
-\subsubsection*{Further Analysis}
+\subsection{Further Analysis}
+\label{subsec:ExFurtherAnalysis}
 
 Hierarchical clustering consistently performs well for many of the
 validation measures. The clustering results from any method can be
@@ -925,7 +1082,7 @@ inspection of the results is left to a subject matter expert.
 hc <- clusters(bio,"hierarchical")
 @ 
 
-<<hplot,eval=FALSE>>=
+<<hplot,eval=TRUE>>=
 mfc <- factor(mouse$FC, labels=c("Re","EST","GD","KP","Met","Mis","St","TF","U"))
 tf.gd <- ifelse(mfc%in%c("GD","TF"),levels(mfc)[mfc],"")
 plot(hc, labels=tf.gd, cex=0.7, hang=-1, main="Mouse Cluster Dendrogram")

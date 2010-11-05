@@ -7,21 +7,23 @@
   statistical clustering partition and biological annotation.
 }
 \usage{
-BHI(statClust, annotation, names = NULL, category = "all")
+BHI(statClust, annotation, names = NULL, category = "all", dropEvidence=NULL)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
   \item{statClust}{An integer vector indicating the statistical cluster partitioning}
   \item{annotation}{Either a character string naming the Bioconductor
-    annotation package for mapping genes to GO categories, or a list
-    with the names of the functional classes
-    and the observations belonging to each class}
+    annotation package for mapping genes to GO categories, or a
+    matrix where each column is a logical vector indicating which genes
+    belong to the biological functional class.  See details below.}
   \item{names}{A vector of labels to associate with the 'genes', to be
     used in conjunction with the Bioconductor annotation package.  Not
     needed if \code{annotation} is a list providing the functional classes. }
   \item{category}{Indicates the GO 
     categories to use for biological validation.  Can be one of "BP",
     "MF", "CC", or "all".}
+  \item{dropEvidence}{Which GO evidence codes to omit.  Either NULL or a
+    character vector, see 'Details' below.}  
 }
 \details{
   The BHI measures how homogeneous the clusters are biologically.  The
@@ -30,6 +32,19 @@ BHI(statClust, annotation, names = NULL, category = "all")
   classes.  The BHI is in the range [0,1], with
   larger values corresponding to more biologically homogeneous clusters.
   For details see the package vignette.
+
+  When inputting the biological annotation and functional classes
+  directly, the \code{BSI} function expects the input in ``matrix'' format,
+  where each column is a logical vector indicating which genes belong to the
+  biological class.  For details on how to input the biological
+  annotation from an Excel file see \code{\link{readAnnotationFile}} and
+  for converting from list to matrix format see
+  \code{\link{annotationListToMatrix}}.
+  
+  The \code{dropEvidence} argument indicates which GO evidence codes to
+  omit.  For example, "IEA" is a relatively weak association based only
+  on electronic information, and users may wish to omit this evidence
+  when determining the functional annotation classes.  
 }
 \value{
   Returns the BHI measure as a numeric value.
@@ -72,12 +87,13 @@ cluster <- cutree(clusterObj,nc)
 ## first way - functional classes predetermined
 fc <- tapply(rownames(express),mouse$FC[1:25], c)
 fc <- fc[-match( c("EST","Unknown"), names(fc))]
+fc <- annotationListToMatrix(fc, rownames(express))
 BHI(cluster, fc)
 
 ## second way - using Bioconductor
-if(require("Biobase") && require("annotate") && require("GO") &&
-require("moe430a")) {
-  BHI(cluster, annotation="moe430a", names=rownames(express), category="all")
+if(require("Biobase") && require("annotate") && require("GO.db") &&
+require("moe430a.db")) {
+  BHI(cluster, annotation="moe430a.db", names=rownames(express), category="all")
 }
 
 }

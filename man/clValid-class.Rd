@@ -35,7 +35,8 @@
   \describe{
     \item{\code{clusterObjs}:}{Object of class \code{"list"}. A list
       containing the results from the clustering methods.}
-    \item{\code{measures}:}{Object of class \code{"array"}. A 3-dimensional array which contains the
+    \item{\code{measures}:}{Object of class \code{"array"}. A
+      3-dimensional array which contains the
       validation measures for the clustering results.  The first
       dimension indicates the validation measures, the second the number of
       clusters, and the third the clustering methods.}
@@ -43,7 +44,10 @@
       names of the validation measures.}
     \item{\code{clMethods}:}{Object of class \code{"character"}. A
       character vector giving the clustering methods.}
-    \item{\code{nClust}:}{Object of class \code{"numeric"}. A numeric vector giving the numbers of clusters
+    \item{\code{labels}:}{Object of class \code{"character"}. A
+      character vector giving the item (gene) labels.}    
+    \item{\code{nClust}:}{Object of class \code{"numeric"}. A numeric
+      vector giving the numbers of clusters
       which were evaluated.}
     \item{\code{validation}:}{Object of class \code{"character"}. A character vector giving the type of
       validation measures used, consisting of some combination of
@@ -137,16 +141,22 @@
 
 \references{
 
-  Datta, S. and Datta, S. (2003).
+  Brock, G., Pihur, V., Datta, S. and Datta, S. (2008)
+  clValid: An R Package for Cluster Validation
+  Journal of Statistical Software 25(4)
+  \url{http://www.jstatsoft.org/v25/i04}
+  
+  Datta, S. and Datta, S. (2003)
   Comparisons and validation of statistical clustering techniques for microarray gene expression data.
   Bioinformatics 19(4): 459-466.
 
-  Datta, S. and Datta, S. (2006).
+  Datta, S. and Datta, S. (2006)
   Methods for evaluating clustering algorithms for gene expression data
   using a reference set of functional classes.
   BMC Bioinformatics 7:397.
-
-  Handl, J., Knowles, K., and Kell, D. (2005).
+  \url{http://www.biomedcentral.com/1471-2105/7/397}
+  
+  Handl, J., Knowles, K., and Kell, D. (2005)
   Computational cluster validation in post-genomic data analysis.
   Bioinformatics 21(15): 3201-3212.
 
@@ -184,7 +194,7 @@ data(mouse)
 ## internal validation
 express <- mouse[1:25,c("M1","M2","M3","NC1","NC2","NC3")]
 rownames(express) <- mouse$ID[1:25]
-intern <- clValid(express, 2:6, clMethods=c("hierarchical","fanny","model"),
+intern <- clValid(express, 2:6, clMethods=c("hierarchical","kmeans","pam"),
                   validation="internal")
 slotNames(intern)
 

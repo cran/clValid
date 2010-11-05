@@ -8,7 +8,8 @@
 }
 
 \usage{
-BSI(statClust, statClustDel, annotation, names = NULL, category = "all", goTermFreq = 0.05)
+BSI(statClust, statClustDel, annotation, names = NULL, category = "all",
+goTermFreq = 0.05, dropEvidence=NULL)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -16,15 +17,17 @@ BSI(statClust, statClustDel, annotation, names = NULL, category = "all", goTermF
   \item{statClustDel}{An integer vector indicating the statistical cluster
     partitioning based on one column removed}
   \item{annotation}{Either a character string naming the Bioconductor
-    annotation package for mapping genes to GO categories, or a list
-    with the names of the functional classes
-    and the observations belonging to each class.}
+    annotation package for mapping genes to GO categories, or a
+    matrix where each column is a logical vector indicating which genes
+    belong to the biological functional class.  See details below.}
   \item{names}{An optional vector of names for the observations}
   \item{category}{Indicates the GO 
     categories to use for biological validation.  Can be one of "BP",
     "MF", "CC", or "all".}
   \item{goTermFreq}{What threshold frequency of GO terms to use for
-    functional annotation.}  
+    functional annotation.}
+  \item{dropEvidence}{Which GO evidence codes to omit.  Either NULL or a
+    character vector, see 'Details' below.}
 }
 \details{
   The BSI  inspects the consistency of clustering for genes with
@@ -35,6 +38,19 @@ BSI(statClust, statClustDel, annotation, names = NULL, category = "all", goTermF
   clusters of the functionally annotated genes.
   For details see the package vignette.
 
+  The \code{dropEvidence} argument indicates which GO evidence codes to
+  omit.  For example, "IEA" is a relatively weak association based only
+  on electronic information, and users may wish to omit this evidence
+  when determining the functional annotation classes.
+
+  When inputting the biological annotation and functional classes
+  directly, the \code{BSI} function expects the input in ``matrix'' format,
+  where each column is a logical vector indicating which genes belong to the
+  biological class.  For details on how to input the biological
+  annotation from an Excel file see \code{\link{readAnnotationFile}} and
+  for converting from list to matrix format see
+  \code{\link{annotationListToMatrix}}.
+  
   NOTE: The \code{BSI} function only calculates these measures for
   one particular column removed.  To get the
   overall scores, the user must average the measures
@@ -88,6 +104,7 @@ cluster <- cutree(clusterObj,nc)
 ## first way - functional classes predetermined
 fc <- tapply(rownames(express),mouse$FC[1:25], c)
 fc <- fc[-match( c("EST","Unknown"), names(fc))]
+fc <- annotationListToMatrix(fc, rownames(express))
 bsi <- numeric(ncol(express))
 ## Need loop over all removed samples
 for (del in 1:ncol(express)) {
@@ -100,15 +117,15 @@ for (del in 1:ncol(express)) {
 mean(bsi)
 
 ## second way - using Bioconductor
-if(require("Biobase") && require("annotate") && require("GO") &&
-   require("moe430a")) {
+if(require("Biobase") && require("annotate") && require("GO.db") &&
+   require("moe430a.db")) {
   bsi <- numeric(ncol(express))
   for (del in 1:ncol(express)) {
     matDel <- express[,-del]               
     DistDel <- dist(matDel,method="euclidean")
     clusterObjDel <- hclust(DistDel, method="average")
     clusterDel <- cutree(clusterObjDel,nc)
-    bsi[del] <- BSI(cluster, clusterDel, annotation="moe430a",
+    bsi[del] <- BSI(cluster, clusterDel, annotation="moe430a.db",
                     names=rownames(express), category="all")
   }
   mean(bsi)

@@ -1,0 +1,116 @@
+-------------------
+Version: 0.6-1
+Date: 2010-11-05
+
+	* Changed format for reading biological annotation files from
+	Excel 2003/2007 to comma separated
+	
+	* Split R code into four files: clValid-Classes.R,
+	clValid-Methods.R, clValid-internal.R, clValid-functions.R
+
+-------------------
+Version: 0.6
+Date: 2009-11-17
+
+	* matchGO : Made change to identify annotated probes with
+	category="all" argument.
+	
+	* clValid : Missing values are now allowed in clValid().  For the
+	correlation metric the use="pairwise.complete.obs" option is used,
+	while the na.rm=TRUE option is used when calculating means for the
+	AD and ADM measures.
+
+	* annotationListToMatrix : Added new function to convert annotation
+	lists to TRUE/FALSE logical matrices: columns = functional
+	classes, rows = genes
+
+	* readAnnotationFile : Added function to read biological
+	annotation file from Excel spreadsheet
+
+	* getRanksWeights : Added function to obtain ranks and weights
+	for rank aggregation from clValid object
+		
+	* BSI, BHI : Changed functions to work with TRUE/FALSES matrices
+	from annotateListToMatrix (thanks to Rainer Machne for suggestion)
+
+	* sota : History of diversities for ancestor nodes are now stored.
+
+	* sota : Moved break for maxDiversity with unrest.growth==FALSE to
+	occur at same point as break for maxCycles (thanks to Rainer
+	Machne)
+	
+	* clValid : Added argument 'verbose' to track pecentage completion
+	of cluster validation 
+	
+	* clValid : Now attempts automatic download and installation of
+	Bioconductor annotation packages if not currently installed
+
+	* clValid-class : Added slot 'labels' to contain the 
+	character vector giving the item (gene) labels.	
+	
+	* clValid, BHI, BSI : Updated to use package GO.db instead of
+	defunct GO package.  Also, added argument 'dropEvidence' to select
+	type of GO evidence used.
+
+	* Packages RankAggreg and RODBC added to list of recommended
+	packages
+
+	* Packages kohonen and mclust changed from required to recommended
+	list of packages
+
+	* Packages GO and moe430 removed from list of recommend packages,
+	added packages GO.db and moe430a.db
+	
+	* Vignette updated to include example of rank aggregation using
+	package RankAggreg, and also illustrates usage of 'dropEvidence'
+	argument and reading in biological annotation files using
+	Excel 
+
+-------------------
+Version: 0.5-7
+Date: 2008-07-28
+
+	* Added latex style file and made minor changes to clValid-class.Rd
+
+-------------------
+Version: 0.5-6
+Date: 2008-01-27
+
+	* sota, sota.print, sota.plot : Fixed these to print and plot properly
+	when actual number of clusters is fewer than requested number
+	(i.e. some clusters are not populated)
+
+	* Added fixes to catch cases where fewer than requested number of
+	clusters is returned by clustering method.  A warning message is
+	given when this occurs.
+
+-------------------
+Version: 0.5-4
+Date: 2007-12-14
+	
+	* The default titles for plotting the validation measures were
+	changed to "Internal validation", "Stability validation", and
+	"Biological validation" for internal, stability, and biological
+	validation, respectively.
+
+	* The functions for calculating each validation measure: dunn,
+	connectivity, BHI, BSI, stability; and the internal function
+	matchGO are all exported now.  Users can call these directly if
+	they have an external clustering algorithm they want to evaluate,
+	or if they just have a dissimilarity matrix (though the original
+	data matrix is still required for the stability measures APN,
+	AD, ADM, and BSI).
+
+	* clValid : Now accepts data frames w/integer data
+
+	* clValid : Attempts to automatically install Bioconductor
+	metadata packages if they are not currently available 
+
+	* clValid : A new argument 'maxitems' was added to limit the
+	number of clustered items.  If R is being used interactively and
+	'maxitems' is exceeded, the user is prompted about whether to
+	continue.  If R is not being used interactively the function exits
+	with an error message.  
+
+	* clValid : Accepts ExpressionSet objects rather than the now
+	defunct exprSet objects 

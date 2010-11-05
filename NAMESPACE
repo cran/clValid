@@ -4,7 +4,7 @@ exportClasses(clValid)
 exportMethods(clusters, clusterMethods, nClusters, measNames, measures, optimalScores, plot, print, show, summary)
 S3method(print,sota)
 S3method(plot,sota)
-export(clValid, sota, dunn, connectivity, BHI, BSI, stability, matchGO)
+export(clValid, sota, dunn, connectivity, BHI, BSI, stability, matchGO, getRanksWeights, annotationListToMatrix, readAnnotationFile)
 
 
 

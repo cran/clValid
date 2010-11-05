@@ -10,12 +10,17 @@
      "subsec:biological"
      "sec:clustering"
      "sec:illustration"
+     "subsec:ExInternal"
      "fig:internPlot"
+     "subsec:ExStability"
      "fig:stabPlot"
+     "subsec:ExBiological"
      "fig:BHI"
      "fig:BSI"
      "fig:BHI2"
      "fig:BSI2"
+     "subsec:ExRankAggreg"
+     "subsec:ExFurtherAnalysis"
      "fig:hplot"
      "sec:discussion")
     (TeX-run-style-hooks
