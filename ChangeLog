@@ -1,4 +1,10 @@
 -------------------
+Version: 0.6-2
+Date: 2011-01-25
+
+	* Fixed bug in NAMESPACE file (removed call to .onLoad())
+	
+-------------------
 Version: 0.6-1
 Date: 2010-11-05
 
