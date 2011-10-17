@@ -10,8 +10,8 @@
 
 \SweaveOpts{engine=R,eps=FALSE,echo=TRUE} %%, eval=FALSE}
 
-\documentclass[11pt]{article}
-%\documentclass[article, shortnames]{jss}
+\documentclass[11pt, nogin]{article}
+%\documentclass[article, shortnames, nogin]{jss}
 
 %\setlength{\oddsidemargin}{0.25truein}
 %\setlength{\evensidemargin}{0.25truein}

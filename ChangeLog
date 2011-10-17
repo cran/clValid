@@ -1,4 +1,18 @@
 -------------------
+Version: 0.6-4
+Date: 2011-10-17
+
+	* Added 'clValid.pdf' back to 'inst/doc'
+	
+-------------------
+Version: 0.6-3
+Date: 2011-10-17
+
+	* Removed unnecessary files from 'inst/doc'
+	
+	* Changed license to LGPL-3
+	
+-------------------
 Version: 0.6-2
 Date: 2011-01-25
 

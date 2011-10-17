@@ -40,5 +40,6 @@
      "latex2e"
      "art11"
      "article"
+     "nogin"
      "11pt")))
 
