@@ -1,4 +1,19 @@
 -------------------
+Version: 0.6-6
+Date: 2014-03-24
+
+	* Declared 'biocLite' as a global variable in source code
+	
+-------------------
+Version: 0.6-5
+Date: 2014-03-21
+
+	* Moved 'clValid' vignette to folder 'vignettes' 
+	
+	* Moved 'methods' and 'class' from 'Depends' field to 'Imports'
+	field in DESCRIPTION file
+
+-------------------
 Version: 0.6-4
 Date: 2011-10-17
 

@@ -1,19 +1,20 @@
 
-
+## Defines global variables for package checks
+if(getRversion() >= "2.15.1")  globalVariables(c("biocLite"))
 
 
 #####################################################################################
 ## clValid Functions
 #####################################################################################
 
-clValid <- function(obj, nClust, clMethods="hierarchical", validation="stability", maxitems=600, 
+clValid <- function(obj, nClust, clMethods="hierarchical", validation="stability", maxitems=600,
                     metric="euclidean", method="average", neighbSize=10,
                     annotation=NULL, GOcategory="all", goTermFreq=0.05,
-                    dropEvidence=NULL, verbose=FALSE, ...) { 
-  
-  
+                    dropEvidence=NULL, verbose=FALSE, ...) {
 
-  clMethods <- tolower(clMethods)  
+
+
+  clMethods <- tolower(clMethods)
   clMethods <- match.arg(clMethods,c("hierarchical","kmeans","diana","fanny","som","model","sota","pam","clara","agnes"), several.ok=TRUE)
 
   if("som"%in%clMethods) {
@@ -21,20 +22,20 @@ clValid <- function(obj, nClust, clMethods="hierarchical", validation="stability
       stop("package 'kohonen' required for clustering using SOM")
     }
   }
-  
+
   if("model"%in%clMethods) {
     if(!require(mclust)) {
       stop("package 'mclust' required for model-based clustering")
     }
-  }  
-  
+  }
+
   validation <- match.arg(validation,c("stability","internal","biological"),several.ok=TRUE)
   metric <- match.arg(metric,c("euclidean", "correlation", "manhattan")) ## used for hierarchical, diana, fanny, agnes, pam
   method <- match.arg(method,c("ward", "single", "complete", "average")) ## for hclust, agnes
   GOcategory <- match.arg(GOcategory, c("all","BP","CC","MF"))
-  
+
   switch(class(obj),
-         matrix = mat <- obj,                                        
+         matrix = mat <- obj,
          ExpressionSet = mat <- Biobase::exprs(obj),
          data.frame = {
            if(any(!sapply(obj,class)%in%c("numeric","integer")))
@@ -57,8 +58,8 @@ clValid <- function(obj, nClust, clMethods="hierarchical", validation="stability
       stop("The number of items to be clustered is larger than 'maxitems'\n  Either decrease the number of rows (items) or increase 'maxitems'\n")
     }
   }
-  
-  
+
+
   if ("clara"%in%clMethods & metric=="correlation")
     warning("'clara' currently only works with 'euclidean' or 'manhattan' metrics - metric will be changed to 'euclidean'  ")
 
@@ -66,7 +67,7 @@ clValid <- function(obj, nClust, clMethods="hierarchical", validation="stability
     annotation <- paste(annotation, ".db", sep="")
   }
   ## Convert annotation list to annotation table
-  
+
   if (is.list(annotation)) {
     if(is.null(rownames(mat))) {
       stop("rownames of data must be present to specify biological annotation from file")
@@ -86,10 +87,10 @@ these can be downloaded from Bioconductor (www.bioconductor.org)")
   if("biological"%in%validation & is.null(rownames(mat))) {
     stop("rownames of data must be present to use biological validation")
   }
-  
+
 #  if (!is.matrix(mat) | !is.numeric(mat))
 #    stop("argument 'mat' must be a numeric matrix")
-  
+
   nClust <- floor(nClust)
   if (any(nClust<1))
     stop("argument 'nClust' must be a positive integer vector")
@@ -108,7 +109,7 @@ these can be downloaded from Bioconductor (www.bioconductor.org)")
   dimnames(validMeasures) <- list(measures,nClust,clMethods)
 
   for (i in 1:length(clMethods)) {
-    
+
     cvalid <- vClusters(mat,clMethods[i],nClust, validation=validation,
                         Dist=Dist, method=method, metric=metric, annotation=annotation,
                         GOcategory=GOcategory, goTermFreq=goTermFreq, neighbSize=neighbSize,
@@ -125,7 +126,7 @@ these can be downloaded from Bioconductor (www.bioconductor.org)")
   new("clValid", clusterObjs=clusterObjs, measures=validMeasures, measNames=measures,
       clMethods=clMethods, labels=rownames(mat), nClust=nClust, validation=validation,
       metric=metric,method=method, neighbSize=neighbSize,  GOcategory=GOcategory,
-      goTermFreq=goTermFreq, annotation=annotation, 
+      goTermFreq=goTermFreq, annotation=annotation,
       call=match.call())
 }
 
@@ -308,7 +309,7 @@ readAnnotationFile <- function(filename) {
   return(res)
 }
 ## NOTE: returned value will be a LIST ...
-## Is ok, since converted automatically to matrix in clValid function ... 
+## Is ok, since converted automatically to matrix in clValid function ...
 
 ## Convert annotation list to annotation TF matrix
 annotationListToMatrix <- function(annotation, genenames) {
@@ -335,35 +336,35 @@ BHI <- function(statClust,annotation,names=NULL,category="all",dropEvidence=NULL
     ## initialize BHI vector to 0s
     bhi <- numeric(length(unique(statClust)))
     names(bhi) <- unique(statClust)
-    
+
     ## for each statClust
     for ( k in unique(statClust) )
-      {      
+      {
         Ck.bhi <- 0
         Ck.idx <- which(statClust==k) # row indices of this statClust Ck
-        
+
         if ( length(Ck.idx)<2 ) next # only one gene, skip
-        
+
         ## for each gene in this statClust
         for ( i in Ck.idx )
           {
             ## ... count how many other genes j in Ck share any (1 or more)
             ## of gene i's annotations:
-            
+
             B <- which(annotation[i,]==TRUE) # get indices of i's annotations
             if ( length(B)==0 ) next # gene i has no annotation
 
             ## gene's annotations of all other genes j in statClust Ck
             annot <- annotation[Ck.idx[ Ck.idx!= i ],B]
-            ## ... add number of genes with at least one shared annotation 
-            if ( length(B)==1 )      Ck.bhi <- Ck.bhi + sum(annot) 
+            ## ... add number of genes with at least one shared annotation
+            if ( length(B)==1 )      Ck.bhi <- Ck.bhi + sum(annot)
             else if ( length(B) >1 ) Ck.bhi <- Ck.bhi + sum(rowSums(annot)>0)
           }
-        
+
         nk <- sum(rowSums(annotation[Ck.idx,])>0) # nr. of annot. feat. in Ck
-        if ( nk>1 ) bhi[k] <- Ck.bhi / (nk*(nk-1)) 
-      }    
-    return(mean(bhi, na.rm=TRUE))    
+        if ( nk>1 ) bhi[k] <- Ck.bhi / (nk*(nk-1))
+      }
+    return(mean(bhi, na.rm=TRUE))
   }
 
 
@@ -428,7 +429,7 @@ matchGO <- function(gg,category) {
            goIDs <- goIDs[goAll]
          })
   ## Number of annotated probes
-  ## If only one annotated probe, then skip this cluster  
+  ## If only one annotated probe, then skip this cluster
   n <- length(goIDs)
   if (n<2) return(NA) ## previously: return(-9)
   sum <- 0
@@ -490,7 +491,7 @@ BSI <- function(statClust,statClustDel,annotation,names=NULL,category="all",
   rs <- rowSums(tab)
   n <- length(statClust)
 
-  
+
   if(!require(annotation,character.only=TRUE)) {
     cat(paste("package",annotation,"not found, attempting download from Bioconductor\n",
               sep=" "))
@@ -502,7 +503,7 @@ BSI <- function(statClust,statClustDel,annotation,names=NULL,category="all",
   ##           }
   goTerms <- getGO(names,annotation)
   if (!is.null(dropEvidence))
-    goTerms <- lapply(goTerms, dropECode, dropEvidence)  
+    goTerms <- lapply(goTerms, dropECode, dropEvidence)
 
   ## Things to do
   ## 1. extract all relevant GO terms for each gene (bp,cc, etc)
@@ -521,7 +522,7 @@ BSI <- function(statClust,statClustDel,annotation,names=NULL,category="all",
   termMat <- matrix(0,ncol=length(keepTerms),nrow=n)
   ## 09/27/09 - fixed issue by using unlist(x) in sapply
   for (i in 1:length(keepTerms)) {
-    termMat[,i] <- sapply(goIDs, function(x) keepTerms[i]%in%unlist(x)) 
+    termMat[,i] <- sapply(goIDs, function(x) keepTerms[i]%in%unlist(x))
   }
 
   bsi <- apply(termMat,2, function(a) {
@@ -535,7 +536,7 @@ BSI <- function(statClust,statClustDel,annotation,names=NULL,category="all",
 
 
 #####################################################################
-## Functions for clustering - SOTA 
+## Functions for clustering - SOTA
 #####################################################################
 
 
@@ -544,7 +545,7 @@ sota.init <- function(data){
   if(is.null(colnames(data)))
     colnames(data) <- paste("V", 1:ncol(data))
   colnames(nodes) <- c("ID", "anc", "cell", colnames(data))
-  nodes[,"ID"]=1:(nrow(data)*2)	
+  nodes[,"ID"]=1:(nrow(data)*2)
 
   nodes[1,] <- c(1, 0, 0, apply(data,2, function(x) mean(x, na.rm=TRUE)))
   nodes[2,] <- c(2, 1, 1, nodes[1,][-c(1,2,3)])
@@ -574,10 +575,10 @@ getResource <- function(data, tree, clust, distance, pr){
     if(is.vector(temp))
       temp <- matrix(temp, nrow=1, ncol=ncol(data))
     if(distance=="correlation")
-      resource[i] <- mean(apply(temp, 1, dist.fn, profile=tree[i,pr], 
+      resource[i] <- mean(apply(temp, 1, dist.fn, profile=tree[i,pr],
                                 distance=distance))
     else
-      resource[i] <- mean(apply(temp, 1, dist.fn, profile=tree[i,pr], 
+      resource[i] <- mean(apply(temp, 1, dist.fn, profile=tree[i,pr],
                                 distance=distance))}
   resource
 }
@@ -618,14 +619,14 @@ sota <- function(data, maxCycles, maxEpochs=1000, distance="euclidean",
   Res.V <- getResource(data, tree, clust, distance, pr)
   if(distance=="correlation")
     Res.V <- 1-Res.V
-  diversity <- Res.V	
+  diversity <- Res.V
 
   for(k in 1:maxCycles){                                #loop for the Cycles
     trainNode <- Node.Split
     trainSamp <- genes[clust==trainNode]
     curr.err <- 1e10
     ep <- 1
-    
+
     while(ep <= maxEpochs){	      			#loop for the Epochs
       last.err <- 0
       left.ctr <- right.ctr <- 0
@@ -635,17 +636,17 @@ sota <- function(data, maxCycles, maxEpochs=1000, distance="euclidean",
         dist <- rep(0, nrow(cells))
         for(j in 1:2)
           dist[j] <- dist.fn(data[i,], cells[j,pr], distance=distance)
-        
+
         or <- which.min(dist)
         if(or==1)
           left.ctr <- left.ctr + 1
         else
           right.ctr<- right.ctr + 1
-        
-        closest <- cells[or,1]				
+
+        closest <- cells[or,1]
         sis <- ifelse(closest%%2==0,closest+1,closest-1)
         sis.is.cell <- ifelse(tree[sis,"cell"]== 1, 1, 0)
-        
+
         ##   updating the cell and its neighbourhood
         if(sis.is.cell==1){
           parent <- tree[closest, "anc"]
@@ -664,7 +665,7 @@ sota <- function(data, maxCycles, maxEpochs=1000, distance="euclidean",
           dist[j] <- dist.fn(data[i,], cells[j,pr], distance=distance)
         last.err <- last.err+min(dist)}
       last.err <- last.err/length(trainSamp)
-      
+
       if(ifelse(last.err==0, 0, abs((curr.err-last.err)/last.err)) < delta
          && left.ctr !=0 && right.ctr !=0)
         break
@@ -677,11 +678,11 @@ sota <- function(data, maxCycles, maxEpochs=1000, distance="euclidean",
       Res.V <- 1-Res.V
 
     tempRes <- Res.V
-    tempRes[tempRes == 0] <- diversity[tempRes==0]	
+    tempRes[tempRes == 0] <- diversity[tempRes==0]
     diversity <- tempRes
-    
+
     if(k==maxCycles || (max(Res.V) < maxDiversity & unrest.growth==FALSE))
-      break  ## do not split the cell 
+      break  ## do not split the cell
     newCells <- splitNode(Res.V, tree, n)
     tree <- newCells$tree
     n <- newCells$n
@@ -704,7 +705,7 @@ sota <- function(data, maxCycles, maxEpochs=1000, distance="euclidean",
   clust <- cl.ID(old.clust, old.cl, 1:nrow(treel))
   totals <- table(clust)
 
-  out <- list(data=data, c.tree=cbind(tree[1:n,],Diversity=diversity), tree=treel, clust=clust, 
+  out <- list(data=data, c.tree=cbind(tree[1:n,],Diversity=diversity), tree=treel, clust=clust,
               totals=totals, dist=distance, diversity=Res.V)
 
   class(out) <- "sota"
@@ -723,8 +724,8 @@ trainLeaves <- function(data, tree, clust, pr, wcell, distance, n, delta){
     init.err <- getCellResource(temp, tree[i,pr], distance)
     while(!converged){
       for(j in 1:nrow(temp))
-        tree[i, pr] <- tree[i, pr]+wcell*(temp[j,]-tree[i, pr])	
-      
+        tree[i, pr] <- tree[i, pr]+wcell*(temp[j,]-tree[i, pr])
+
       last.err <- getCellResource(temp, tree[i,pr], distance)
       converged <- ifelse(abs((last.err-init.err)/last.err) < delta, TRUE, FALSE)
       init.err <- last.err
@@ -736,8 +737,8 @@ trainLeaves <- function(data, tree, clust, pr, wcell, distance, n, delta){
 
 assignGenes <- function(data, Sample, clust, tree, n, distance, pr, neighb.level){
   if(neighb.level==0)
-    cells <- tree[c(n-1,n),]	
-  else	
+    cells <- tree[c(n-1,n),]
+  else
     cells <- getCells(tree, neighb.level, n)
 
   for(i in Sample){
@@ -745,7 +746,7 @@ assignGenes <- function(data, Sample, clust, tree, n, distance, pr, neighb.level
     for(j in 1:nrow(cells))
       dist[j] <- dist.fn(data[i,], cells[j,pr], distance)
     or <- which.min(dist)
-    closest <- cells[or,1]	
+    closest <- cells[or,1]
     clust[i] <- closest
   }
   clust
@@ -796,17 +797,17 @@ plot.sota <- function(x, cl=0, ...){
   on.exit(par(op))
   if(cl!=0)
     par(mfrow=c(1,1)) else
-  {	
+  {
     pdim <- c(0,0)
     for(i in 1:100){
       j <- i
       if(length(x$totals) > i*j)
-        j <- j+1 
+        j <- j+1
       else{
         pdim <- c(i,j)
         break}
       if(length(x$totals) > i*j)
-        i <- i+1 
+        i <- i+1
       else{
         pdim <- c(i,j)
         break}
@@ -824,7 +825,7 @@ plot.sota <- function(x, cl=0, ...){
   for(i in cl.to.print){
     plot(1:ncol(x$data), x$tree[i, pr], col="red", type="l",
          ylim=ylim, xlab=paste("Cluster ",i), ylab="Expr. Level", ...)
-    legend("topleft", legend=paste(x$totals[i], " Genes"), cex=.7, 
+    legend("topleft", legend=paste(x$totals[i], " Genes"), cex=.7,
            text.col="navy", bty="n")
     cl <- x$data[x$clust==cl.id[i],]  ## changed
     if(is.vector(cl))
@@ -848,7 +849,7 @@ getRanksWeights <- function(clVObj, measures=measNames(clVObj), nClust=nClusters
   measures <- match.arg(measures,measNames(clVObj),several.ok=TRUE)
   nClust <- as.character(nClust)
   nClust <- match.arg(nClust,nClusters(clVObj),several.ok=TRUE)
-  nClust <- as.character(nClust)  
+  nClust <- as.character(nClust)
   clAlgs <- match.arg(clAlgs,clusterMethods(clVObj),several.ok=TRUE)
   meas <- clVObj@measures[measures, nClust, clAlgs, drop=FALSE]
   ranks <- matrix(0, dim(meas)[1], dim(meas)[2]*dim(meas)[3])
@@ -864,7 +865,7 @@ getRanksWeights <- function(clVObj, measures=measNames(clVObj), nClust=nClusters
     if(measures[i] %in% c("Dunn", "Silhouette"))
       incr <- TRUE
     else
-      incr <- FALSE   
+      incr <- FALSE
     sorted <- sort(meas[i,,], ind=TRUE, decreasing=incr)
     ranks[i,] <- algs[sorted$ix]
     weights[i,] <- sorted$x

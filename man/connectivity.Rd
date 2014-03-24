@@ -6,7 +6,8 @@
   Calculates the connectivity validation measure for a given cluster partitioning.
 }
 \usage{
-connectivity(distance = NULL, clusters, Data = NULL, neighbSize = 10, method = "euclidean")
+connectivity(distance = NULL, clusters, Data = NULL, neighbSize = 10,
+             method = "euclidean")
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{

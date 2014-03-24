@@ -1,0 +1,22 @@
+citHeader("To cite clValid in publications use:")
+
+citEntry(entry = "Article",
+  title        = "{clValid}: An {R} Package for Cluster Validation",
+  author       = personList(as.person("Guy Brock"),
+                   as.person("Vasyl Pihur"),
+                   as.person("Susmita Datta"),
+                   as.person("Somnath Datta")),
+  journal      = "Journal of Statistical Software",
+  year         = "2008",
+  volume       = "25",
+  number       = "4",
+  pages        = "1--22",
+  url          = "http://www.jstatsoft.org/v25/i04/",
+
+  textVersion  =
+  paste("Guy Brock, Vasyl Pihur, Susmita Datta, Somnath Datta (2008).",
+        "clValid: An R Package for Cluster Validation.",
+        "Journal of Statistical Software, 25(4), 1-22.",
+        "URL http://www.jstatsoft.org/v25/i04/.")
+)
+

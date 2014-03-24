@@ -6,7 +6,8 @@
   object, to use as input for rank aggregation using
   \code{\link[RankAggreg]{RankAggreg}} in package \pkg{RankAggreg}}
 \usage{
-getRanksWeights(clVObj, measures = measNames(clVObj), nClust = nClusters(clVObj), clAlgs = clusterMethods(clVObj))
+getRanksWeights(clVObj, measures = measNames(clVObj), nClust =
+                nClusters(clVObj), clAlgs = clusterMethods(clVObj))
 }
 \arguments{
   \item{clVObj}{a clValid object}
