@@ -18,13 +18,13 @@ clValid <- function(obj, nClust, clMethods="hierarchical", validation="stability
   clMethods <- match.arg(clMethods,c("hierarchical","kmeans","diana","fanny","som","model","sota","pam","clara","agnes"), several.ok=TRUE)
 
   if("som"%in%clMethods) {
-    if(!require(kohonen)) {
+    if(!requireNamespace("kohonen")) {
       stop("package 'kohonen' required for clustering using SOM")
     }
   }
 
   if("model"%in%clMethods) {
-    if(!require(mclust)) {
+    if(!requireNamespace("mclust")) {
       stop("package 'mclust' required for model-based clustering")
     }
   }
@@ -79,7 +79,7 @@ clValid <- function(obj, nClust, clMethods="hierarchical", validation="stability
     stop("annotation must be specified in order to use biological validation")
   }
   if ("biological"%in%validation & is.character(annotation)) {
-    if(!require(Biobase) | !require(GO.db) | !require(annotate)) {
+    if(!requireNamespace("Biobase") | !requireNamespace("GO.db") | !requireNamespace("annotate")) {
       stop("packages 'Biobase', 'GO.db', and 'annotate' required for 2nd type of biological validation \n
 these can be downloaded from Bioconductor (www.bioconductor.org)")
     }
@@ -328,7 +328,7 @@ annotationListToMatrix <- function(annotation, genenames) {
 
 
 ## NOTE: could return BHI VECTOR (length=#stat clusters), take mean in clValid fn.
-BHI <- function(statClust,annotation,names=NULL,category="all",dropEvidence=NULL) {
+BHI <- function(statClust,annotation="",names=NULL,category="all",dropEvidence=NULL) {
 
   ## Case 1
   ## Biological clusters provided by user
@@ -376,7 +376,7 @@ BHI <- function(statClust,annotation,names=NULL,category="all",dropEvidence=NULL
   ##  category <- match.arg(category,c("all","BP","CC","MF"))
   ##  expr <- parse(text="require(x, character.only=TRUE)")[[1]]
   ##  expr <- do.call("substitute", list(expr, list(x=annotation)))
-  if(!require(annotation, character.only=TRUE)) {
+  if(!requireNamespace(annotation)) {
     cat(paste("package",annotation,"not found, attempting download from Bioconductor\n",
               sep=" "))
     source("http://bioconductor.org/biocLite.R")
@@ -384,17 +384,17 @@ BHI <- function(statClust,annotation,names=NULL,category="all",dropEvidence=NULL
     if(class(res)=="try-error") {
       stop(paste("attempted download of package", annotation, "failed, exiting"))
     } else {
-      library(annotation, character.only=TRUE)
+      requireNamespace(annotation)
     }
   }
   ##           if(!require(annotation,character.only=TRUE)) {
   ##             stop(paste("package",annotation,"not found",sep=" "))
   ##           }
-  require(annotate)
+  requireNamespace("annotate")
   ## Get GO terms associated with each probe ID
-  goTerms <- getGO(names,annotation)
+  goTerms <- annotate::getGO(names,annotation)
   if (!is.null(dropEvidence))
-    goTerms <- lapply(goTerms, dropECode, dropEvidence)
+    goTerms <- lapply(goTerms, annotate::dropECode, dropEvidence)
   ## Find biological homogeneity for each stat cluster, then take average
   bhi <- tapply(goTerms,statClust,function(x)  matchGO(x,category))
   return(mean(bhi, na.rm=TRUE))
@@ -447,7 +447,7 @@ matchGO <- function(gg,category) {
 } ## End matchGO function
 
 
-BSI <- function(statClust,statClustDel,annotation,names=NULL,category="all",
+BSI <- function(statClust,statClustDel,annotation="",names=NULL,category="all",
                 goTermFreq=0.05, dropEvidence=NULL) {
 
   ## Case 1
@@ -492,7 +492,7 @@ BSI <- function(statClust,statClustDel,annotation,names=NULL,category="all",
   n <- length(statClust)
 
 
-  if(!require(annotation,character.only=TRUE)) {
+  if(!requireNamespace(annotation)) {
     cat(paste("package",annotation,"not found, attempting download from Bioconductor\n",
               sep=" "))
     source("http://bioconductor.org/biocLite.R")
@@ -501,9 +501,9 @@ BSI <- function(statClust,statClustDel,annotation,names=NULL,category="all",
   ##           if(!require(annotation,character.only=TRUE)) {
   ##             stop(paste("package",annotation,"not found",sep=" "))
   ##           }
-  goTerms <- getGO(names,annotation)
+  goTerms <- annotate::getGO(names,annotation)
   if (!is.null(dropEvidence))
-    goTerms <- lapply(goTerms, dropECode, dropEvidence)
+    goTerms <- lapply(goTerms, annotate::dropECode, dropEvidence)
 
   ## Things to do
   ## 1. extract all relevant GO terms for each gene (bp,cc, etc)

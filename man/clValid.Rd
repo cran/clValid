@@ -131,14 +131,14 @@ goTermFreq=0.05, dropEvidence=NULL, verbose=FALSE, ...)
   annotation to matrix format internally if initially given in list format.
 
   The second option is to specify the appropriate
-  annotation package from Bioconductor (\url{http://www.bioconductor.org})
+  annotation package from Bioconductor (\url{https://www.bioconductor.org/})
   and GO terms to determine the functional classes of
   the genes.  To use the second option requires the \pkg{Biobase},
   \pkg{annotate}, and \pkg{GO} packages from Bioconductor, in addition
   to the annotation package for the particular data type.
   If the annotation package cannot be loaded, \code{clValid} will
   attempt to automatically download the package from
-  \url{www.bioconductor.org} (using the
+  \url{https://www.bioconductor.org/} (using the
   \file{biocLite.R} installation script).
 
   The \code{GOcategory} options are "MF", "BP", "CC", or "all",
@@ -194,7 +194,7 @@ Unless the the list of genes corresponding to functional classes is prespecified
 to perform biological clustering validation
 will require the \pkg{Biobase}, \pkg{annotate} and \pkg{GO} packages from
 Bioconductor, and in addition the annotation package for your
-particular data type.  Please see \url{http://www.bioconductor.org} for installation instructions.
+particular data type.  Please see \url{https://www.bioconductor.org/} for installation instructions.
 
 Further details of the validation measures and instructions in use can
 be found in the package vignette.

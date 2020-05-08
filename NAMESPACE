@@ -1,4 +1,7 @@
 importFrom(graphics, plot)
+importFrom("grDevices", "dev.interactive")
+importFrom("graphics", "axis", "legend", "lines", "matplot", "par")
+importFrom("stats", "as.dist", "cor", "cutree", "dist", "ftable", "hclust", "kmeans", "xtabs")
 import("class", "cluster", "methods")
 exportClasses(clValid)
 exportMethods(clusters, clusterMethods, nClusters, measNames, measures, optimalScores, plot, print, show, summary)

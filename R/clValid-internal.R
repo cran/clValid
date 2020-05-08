@@ -71,11 +71,11 @@ vClusters <- function(mat,clMethod,nClust,nclustMax, validation,
              cluster <- clusterObj[[ind]]$clustering
            },
            model = {
-             clusterObj[[ind]] <- Mclust(mat,nc, ...)
+             clusterObj[[ind]] <- mclust::Mclust(mat,nc, ...)
              cluster <- clusterObj[[ind]]$classification
            },
            som = {
-             clusterObj[[ind]] <- som(mat, grid=somgrid(1,nc), ...)
+             clusterObj[[ind]] <- kohonen::som(mat, grid=somgrid(1,nc), ...)
              cluster <- clusterObj[[ind]]$unit.classif
            },
            pam = {
@@ -152,10 +152,10 @@ vClusters <- function(mat,clMethod,nClust,nclustMax, validation,
                  clusterDel <- hfdel$clustering
                },
                model = {
-                 clusterDel <- Mclust(matDel,nc, ...)$classification
+                 clusterDel <- mclust::Mclust(matDel,nc, ...)$classification
                },
                som = {
-                 hsdel <- try(som(matDel, grid=somgrid(1,nc), ...))
+                 hsdel <- try(kohonen::som(matDel, grid=somgrid(1,nc), ...))
                  clusterDel <- hsdel$unit.classif
                },
                pam = {
