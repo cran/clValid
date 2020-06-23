@@ -600,6 +600,12 @@ For further description of the dataset and the experiments the reader is referre
 <<prelim, echo=FALSE>>=
 options(prompt="R> ")
 library("clValid")
+
+if (!requireNamespace("BiocManager", quietly = TRUE))
+    install.packages("BiocManager")
+
+BiocManager::install("moe430a.db")
+BiocManager::install("GO.db")
 @ 
 
 

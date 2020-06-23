@@ -19,7 +19,7 @@ goTermFreq=0.05, dropEvidence=NULL, verbose=FALSE, ...)
 
 
 \arguments{
-  \item{obj}{Either a numeric matrix, a data frame, or an \code{\link[Biobase]{ExpressionSet}}
+  \item{obj}{Either a numeric matrix, a data frame, or an ExpressionSet
     object.  Data frames must contain all numeric columns.  In all
     cases, the rows are the items to be clustered (e.g., genes),
     and the columns are the samples.}
@@ -208,7 +208,7 @@ be found in the package vignette.
   \code{\link{kmeans}}  in package \pkg{stats}, 
   \code{\link[cluster]{agnes}}, \code{\link[cluster]{clara}},  \code{\link[cluster]{diana}},
   \code{\link[cluster]{fanny}}, and \code{\link[cluster]{pam}} in package \pkg{cluster},
-  \code{\link[kohonen]{som}} in package \pkg{kohonen}, \code{\link[mclust]{Mclust}}
+  \code{\link[kohonen]{supersom}} in package \pkg{kohonen}, \code{\link[mclust]{Mclust}}
   in package \pkg{mclust}, and \code{\link{sota}} (in this package).
 
   For additional help on the validation measures see
@@ -229,7 +229,7 @@ data(mouse)
 ## internal validation
 express <- mouse[1:25,c("M1","M2","M3","NC1","NC2","NC3")]
 rownames(express) <- mouse$ID[1:25]
-intern <- clValid(express, 2:6, clMethods=c("hierarchical","kmeans","pam"),
+intern <- clValid(express, 2:4, clMethods=c("hierarchical","kmeans","pam"),
                   validation="internal")
 
 ## view results
@@ -238,7 +238,7 @@ optimalScores(intern)
 plot(intern)
 
 ## stability measures
-stab <- clValid(express, 2:6, clMethods=c("hierarchical","kmeans","pam"),
+stab <- clValid(express, 2:4, clMethods=c("hierarchical","kmeans","pam"),
                 validation="stability")
 optimalScores(stab)
 plot(stab)
@@ -247,14 +247,14 @@ plot(stab)
 ## first way - functional classes predetermined
 fc <- tapply(rownames(express),mouse$FC[1:25], c)
 fc <- fc[-match( c("EST","Unknown"), names(fc))]
-bio <- clValid(express, 2:6, clMethods=c("hierarchical","kmeans","pam"),
+bio <- clValid(express, 2:4, clMethods=c("hierarchical","kmeans","pam"),
                validation="biological", annotation=fc)
 optimalScores(bio)
 plot(bio)
 
 ## second way - using Bioconductor
 if(require("Biobase") && require("annotate") && require("GO.db") && require("moe430a.db")) {
-  bio2 <- clValid(express, 2:6, clMethods=c("hierarchical","kmeans","pam"),
+  bio2 <- clValid(express, 2:4, clMethods=c("hierarchical","kmeans","pam"),
                   validation="biological",annotation="moe430a.db",GOcategory="all")
   optimalScores(bio2)
   plot(bio2)

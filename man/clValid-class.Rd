@@ -171,7 +171,7 @@
   \code{\link{kmeans}}  in package \pkg{stats}, 
   \code{\link[cluster]{agnes}}, \code{\link[cluster]{clara}},  \code{\link[cluster]{diana}},
   \code{\link[cluster]{fanny}}, and \code{\link[cluster]{pam}} in package \pkg{cluster},
-  \code{\link[kohonen]{som}} in package \pkg{kohonen}, \code{\link[mclust]{Mclust}}  
+  \code{\link[kohonen]{supersom}} in package \pkg{kohonen}, \code{\link[mclust]{Mclust}}  
   in package \pkg{mclust}, and \code{\link{sota}}.
 
   For additional help on the validation measures see

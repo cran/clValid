@@ -6,6 +6,12 @@
 options(prompt="R> ")
 library("clValid")
 
+if (!requireNamespace("BiocManager", quietly = TRUE))
+    install.packages("BiocManager")
+
+BiocManager::install("moe430a.db")
+BiocManager::install("GO.db")
+
 
 ###################################################
 ### code chunk number 2: mouse
@@ -23,7 +29,7 @@ intern <- clValid(express, 2:6, clMethods=c("hierarchical","kmeans","pam"),
 
 
 ###################################################
-### code chunk number 4: clValid.Rnw:659-660
+### code chunk number 4: clValid.Rnw:665-666
 ###################################################
 summary(intern)
 
@@ -41,7 +47,7 @@ par(op)
 
 
 ###################################################
-### code chunk number 6: clValid.Rnw:686-687
+### code chunk number 6: clValid.Rnw:692-693
 ###################################################
 op <- par(no.readonly=TRUE)
 par(mfrow=c(2,2),mar=c(4,4,3,1))
@@ -77,7 +83,7 @@ par(op)
 
 
 ###################################################
-### code chunk number 10: clValid.Rnw:749-750
+### code chunk number 10: clValid.Rnw:755-756
 ###################################################
 par(mfrow=c(2,2),mar=c(4,4,3,1))
 plot(stab, measure=c("APN","AD","ADM"),legend=FALSE)
@@ -124,13 +130,13 @@ plot(bio, measure="BSI")
 
 
 ###################################################
-### code chunk number 16: clValid.Rnw:846-847
+### code chunk number 16: clValid.Rnw:852-853
 ###################################################
 plot(bio, measure="BHI", legendLoc="topleft")
 
 
 ###################################################
-### code chunk number 17: clValid.Rnw:856-857
+### code chunk number 17: clValid.Rnw:862-863
 ###################################################
 plot(bio, measure="BSI")
 
@@ -148,7 +154,7 @@ if(require("Biobase") && require("annotate") && require("GO.db") && require("moe
 
 
 ###################################################
-### code chunk number 19: clValid.Rnw:904-905
+### code chunk number 19: clValid.Rnw:910-911
 ###################################################
 if(exists("bio2")) optimalScores(bio2)
 
@@ -166,13 +172,13 @@ if(exists("bio2")) plot(bio2, measure="BSI")
 
 
 ###################################################
-### code chunk number 22: clValid.Rnw:926-927
+### code chunk number 22: clValid.Rnw:932-933
 ###################################################
 if(exists("bio2")) plot(bio2, measure="BHI", legendLoc="topleft")
 
 
 ###################################################
-### code chunk number 23: clValid.Rnw:936-937
+### code chunk number 23: clValid.Rnw:942-943
 ###################################################
 if(exists("bio2")) plot(bio2, measure="BSI")
 
@@ -240,7 +246,7 @@ plot(hc, labels=tf.gd, cex=0.7, hang=-1, main="Mouse Cluster Dendrogram")
 
 
 ###################################################
-### code chunk number 32: clValid.Rnw:1093-1094
+### code chunk number 32: clValid.Rnw:1099-1100
 ###################################################
 mfc <- factor(mouse$FC, labels=c("Re","EST","GD","KP","Met","Mis","St","TF","U"))
 tf.gd <- ifelse(mfc%in%c("GD","TF"),levels(mfc)[mfc],"")

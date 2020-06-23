@@ -34,7 +34,7 @@ clValid <- function(obj, nClust, clMethods="hierarchical", validation="stability
   method <- match.arg(method,c("ward", "single", "complete", "average")) ## for hclust, agnes
   GOcategory <- match.arg(GOcategory, c("all","BP","CC","MF"))
 
-  switch(class(obj),
+  switch(class(obj)[1],
          matrix = mat <- obj,
          ExpressionSet = mat <- Biobase::exprs(obj),
          data.frame = {
