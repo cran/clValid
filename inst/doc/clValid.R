@@ -6,12 +6,6 @@
 options(prompt="R> ")
 library("clValid")
 
-if (!requireNamespace("BiocManager", quietly = TRUE))
-    install.packages("BiocManager")
-
-BiocManager::install("moe430a.db")
-BiocManager::install("GO.db")
-
 
 ###################################################
 ### code chunk number 2: mouse
@@ -29,7 +23,7 @@ intern <- clValid(express, 2:6, clMethods=c("hierarchical","kmeans","pam"),
 
 
 ###################################################
-### code chunk number 4: clValid.Rnw:665-666
+### code chunk number 4: clValid.Rnw:658-659
 ###################################################
 summary(intern)
 
@@ -47,7 +41,7 @@ par(op)
 
 
 ###################################################
-### code chunk number 6: clValid.Rnw:692-693
+### code chunk number 6: clValid.Rnw:685-686
 ###################################################
 op <- par(no.readonly=TRUE)
 par(mfrow=c(2,2),mar=c(4,4,3,1))
@@ -83,7 +77,7 @@ par(op)
 
 
 ###################################################
-### code chunk number 10: clValid.Rnw:755-756
+### code chunk number 10: clValid.Rnw:748-749
 ###################################################
 par(mfrow=c(2,2),mar=c(4,4,3,1))
 plot(stab, measure=c("APN","AD","ADM"),legend=FALSE)
@@ -130,13 +124,13 @@ plot(bio, measure="BSI")
 
 
 ###################################################
-### code chunk number 16: clValid.Rnw:852-853
+### code chunk number 16: clValid.Rnw:845-846
 ###################################################
 plot(bio, measure="BHI", legendLoc="topleft")
 
 
 ###################################################
-### code chunk number 17: clValid.Rnw:862-863
+### code chunk number 17: clValid.Rnw:855-856
 ###################################################
 plot(bio, measure="BSI")
 
@@ -144,7 +138,8 @@ plot(bio, measure="BSI")
 ###################################################
 ### code chunk number 18: bioc
 ###################################################
-if(require("Biobase") && require("annotate") && require("GO.db") && require("moe430a.db")) {
+if(require("Biobase", quietly = TRUE) && require("annotate", quietly = TRUE) && 
+   require("GO.db", quietly = TRUE) && require("moe430a.db", quietly = TRUE)) {
   ## Need to know which affy chip was used in experiment
   ## affymetrix murine genome 430a genechip arrays
   bio2 <- clValid(express, 2:6, clMethods=c("hierarchical","kmeans","pam"),
@@ -154,39 +149,23 @@ if(require("Biobase") && require("annotate") && require("GO.db") && require("moe
 
 
 ###################################################
-### code chunk number 19: clValid.Rnw:910-911
+### code chunk number 19: clValid.Rnw:904-905
 ###################################################
 if(exists("bio2")) optimalScores(bio2)
 
 
 ###################################################
-### code chunk number 20: BHI2
+### code chunk number 20: BHI2 (eval = FALSE)
 ###################################################
-if(exists("bio2")) plot(bio2, measure="BHI", legendLoc="topleft")
+## if(exists("bio2")) plot(bio2, measure="BHI", legendLoc="topleft")
+## if(exists("bio2")) plot(bio2, measure="BSI")
 
 
 ###################################################
-### code chunk number 21: BSI2
+### code chunk number 21: biocDE (eval = FALSE)
 ###################################################
-if(exists("bio2")) plot(bio2, measure="BSI")
-
-
-###################################################
-### code chunk number 22: clValid.Rnw:932-933
-###################################################
-if(exists("bio2")) plot(bio2, measure="BHI", legendLoc="topleft")
-
-
-###################################################
-### code chunk number 23: clValid.Rnw:942-943
-###################################################
-if(exists("bio2")) plot(bio2, measure="BSI")
-
-
-###################################################
-### code chunk number 24: biocDE (eval = FALSE)
-###################################################
-## if(require("Biobase") && require("annotate") && require("GO.db") && require("moe430a.db")) {
+## if(require("Biobase", quietly = TRUE) && require("annotate", quietly = TRUE) && 
+##    require("GO.db", quietly = TRUE) && require("moe430a.db", quietly = TRUE)) {
 ##   ## Need to know which affy chip was used in experiment
 ##   ## affymetrix murine genome 430a genechip arrays
 ##   bio2DE <- clValid(express, 2:6, clMethods=c("hierarchical","kmeans","pam"),
@@ -197,7 +176,7 @@ if(exists("bio2")) plot(bio2, measure="BSI")
 
 
 ###################################################
-### code chunk number 25: RankAggreg
+### code chunk number 22: RankAggreg
 ###################################################
 result <- clValid(express, 4:6, clMethods=c("hierarchical","kmeans","pam"), 
                   validation=c("internal","stability"))
@@ -205,13 +184,13 @@ res <- getRanksWeights(result)
 
 
 ###################################################
-### code chunk number 26: ranks
+### code chunk number 23: ranks
 ###################################################
 print(res$ranks[,1:3], quote=FALSE)
 
 
 ###################################################
-### code chunk number 27: RankAggreg
+### code chunk number 24: RankAggreg
 ###################################################
 if(require("RankAggreg")) {
   CEWS <- RankAggreg(x=res$ranks, k=5, weights=res$weights, seed=123, verbose=FALSE)
@@ -220,25 +199,25 @@ if(require("RankAggreg")) {
 
 
 ###################################################
-### code chunk number 28: RankAggFig
+### code chunk number 25: RankAggFig
 ###################################################
 plot(CEWS)
 
 
 ###################################################
-### code chunk number 29: RAFig
+### code chunk number 26: RAFig
 ###################################################
 plot(CEWS)
 
 
 ###################################################
-### code chunk number 30: hierarchical
+### code chunk number 27: hierarchical
 ###################################################
 hc <- clusters(bio,"hierarchical")
 
 
 ###################################################
-### code chunk number 31: hplot
+### code chunk number 28: hplot
 ###################################################
 mfc <- factor(mouse$FC, labels=c("Re","EST","GD","KP","Met","Mis","St","TF","U"))
 tf.gd <- ifelse(mfc%in%c("GD","TF"),levels(mfc)[mfc],"")
@@ -246,7 +225,7 @@ plot(hc, labels=tf.gd, cex=0.7, hang=-1, main="Mouse Cluster Dendrogram")
 
 
 ###################################################
-### code chunk number 32: clValid.Rnw:1099-1100
+### code chunk number 29: clValid.Rnw:1099-1100
 ###################################################
 mfc <- factor(mouse$FC, labels=c("Re","EST","GD","KP","Met","Mis","St","TF","U"))
 tf.gd <- ifelse(mfc%in%c("GD","TF"),levels(mfc)[mfc],"")
@@ -254,7 +233,7 @@ plot(hc, labels=tf.gd, cex=0.7, hang=-1, main="Mouse Cluster Dendrogram")
 
 
 ###################################################
-### code chunk number 33: twoClusters
+### code chunk number 30: twoClusters
 ###################################################
 two <- cutree(hc,2)
 xtabs(~mouse$FC + two)

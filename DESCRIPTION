@@ -1,6 +1,6 @@
 Package: clValid
-Version: 0.6-8
-Date: 2020-06-22
+Version: 0.6-9
+Date: 2020-07-13
 Title: Validation of Clustering Results
 Author: Guy Brock <guy.brock@louisville.edu>, Vasyl Pihur <vpihur@gmail.com>, 
 	Susmita Datta <susmita.datta@louisville.edu>, and
@@ -8,13 +8,13 @@ Author: Guy Brock <guy.brock@louisville.edu>, Vasyl Pihur <vpihur@gmail.com>,
 Maintainer: Vasyl Pihur <vpihur@gmail.com>
 Depends: R (>= 3.0), cluster
 Imports: methods, class
-Suggests: Biobase, BiocManager, annotate, GO.db, moe430a.db,
-        RankAggreg, kohonen, mclust
+Suggests: Biobase, annotate, GO.db, moe430a.db, RankAggreg, kohonen,
+        mclust
 Description: Statistical and biological validation of clustering results. This package implements Dunn Index, Silhouette, Connectivity, Stability, BHI and BSI. Further information can be found in Brock, G et al. (2008) <doi: 10.18637/jss.v025.i04>.
 License: LGPL-3
 Collate: clValid-Classes.R clValid-Methods.R clValid-internal.R
         clValid-functions.R
 NeedsCompilation: no
 Repository: CRAN
-Packaged: 2020-06-23 02:02:05 UTC; vpihur
-Date/Publication: 2020-06-23 05:30:24 UTC
+Packaged: 2020-07-14 04:16:51 UTC; vpihur
+Date/Publication: 2020-07-14 09:10:13 UTC

@@ -2,8 +2,7 @@
 % likely to be overwritten.
 %
 % \VignetteIndexEntry{clValid Overview}
-% \VignetteDepends{cluster, kohonen, class, mclust, Biobase, annotate,
-% GO.db, moe430a.db}
+% \VignetteDepends{cluster, kohonen, class, mclust, Biobase, annotate}
 % \VignetteKeywords{clustering, validation, stability measures, biological annotation, functional categories}
 % \VignettePackage{clValid}
 
@@ -600,12 +599,6 @@ For further description of the dataset and the experiments the reader is referre
 <<prelim, echo=FALSE>>=
 options(prompt="R> ")
 library("clValid")
-
-if (!requireNamespace("BiocManager", quietly = TRUE))
-    install.packages("BiocManager")
-
-BiocManager::install("moe430a.db")
-BiocManager::install("GO.db")
 @ 
 
 
@@ -898,7 +891,8 @@ leave the \rfarg{goTermFreq} argument at its default level of 0.05,
 and use all available GO categories (\rfarg{GOcategory="all"}) for annotation.
 
 <<bioc, eval=TRUE>>=
-if(require("Biobase") && require("annotate") && require("GO.db") && require("moe430a.db")) {
+if(require("Biobase", quietly = TRUE) && require("annotate", quietly = TRUE) && 
+   require("GO.db", quietly = TRUE) && require("moe430a.db", quietly = TRUE)) {
   ## Need to know which affy chip was used in experiment
   ## affymetrix murine genome 430a genechip arrays
   bio2 <- clValid(express, 2:6, clMethods=c("hierarchical","kmeans","pam"),
@@ -911,41 +905,46 @@ if(require("Biobase") && require("annotate") && require("GO.db") && require("moe
 if(exists("bio2")) optimalScores(bio2)
 @ 
 
-
-The plots of the measures are given in Figures \ref{fig:BHI2} and
-\ref{fig:BSI2}.
-Notice again that hierarchical clustering has the best performance on
-the BSI measurement over the range for the number of clusters, 
-but does not score as well under the BHI measure validation.  
-
-
-<<BHI2,eval=TRUE, echo=FALSE>>=
+Further plots can be obtained by running
+<<BHI2,eval=FALSE, echo=TRUE>>=
 if(exists("bio2")) plot(bio2, measure="BHI", legendLoc="topleft")
-@ 
-
-<<BSI2,eval=TRUE, echo=FALSE>>=
 if(exists("bio2")) plot(bio2, measure="BSI")
 @ 
 
-\begin{figure}
-  \centering
-<<fig=TRUE,echo=TRUE>>=
-<<BHI2>>
-@ 
-  \caption{Plot of the BHI measure, using annotation package
-    \pkg{moe430a.db} in Bioconductor.}
-  \label{fig:BHI2}
-\end{figure}
-
-\begin{figure}
-  \centering
-<<fig=TRUE,echo=TRUE>>=
-<<BSI2>>
-@ 
-  \caption{Plot of the BSI measure, using annotation package
-    \pkg{moe430a.db} in Bioconductor.}
-  \label{fig:BSI2}
-\end{figure}
+%The plots of the measures are given in Figures \ref{fig:BHI2} and
+%\ref{fig:BSI2}.
+%Notice again that hierarchical clustering has the best performance on
+%the BSI measurement over the range for the number of clusters, 
+%but does not score as well under the BHI measure validation.  
+%
+%
+%<<BHI2,eval=TRUE, echo=FALSE>>=
+%if(exists("bio2")) plot(bio2, measure="BHI", legendLoc="topleft")
+%@ 
+%
+%<<BSI2,eval=TRUE, echo=FALSE>>=
+%if(exists("bio2")) plot(bio2, measure="BSI")
+%@ 
+%
+%\begin{figure}
+%  \centering
+%<<fig=TRUE,echo=TRUE>>=
+%<<BHI2>>
+%@ 
+%  \caption{Plot of the BHI measure, using annotation package
+%    \pkg{moe430a.db} in Bioconductor.}
+%  \label{fig:BHI2}
+%\end{figure}
+%
+%\begin{figure}
+%  \centering
+%<<fig=TRUE,echo=TRUE>>=
+%<<BSI2>>
+%@ 
+%  \caption{Plot of the BSI measure, using annotation package
+%    \pkg{moe430a.db} in Bioconductor.}
+%  \label{fig:BSI2}
+%\end{figure}
 
 The user can also limit the level of evidence used to determine GO
 annotation using the \texttt{dropEvidence} argument.  In particular,
@@ -954,7 +953,8 @@ on electronic information, and users may wish to omit this evidence
 when determining the functional annotation classes.
 
 <<biocDE, eval=FALSE>>=
-if(require("Biobase") && require("annotate") && require("GO.db") && require("moe430a.db")) {
+if(require("Biobase", quietly = TRUE) && require("annotate", quietly = TRUE) && 
+   require("GO.db", quietly = TRUE) && require("moe430a.db", quietly = TRUE)) {
   ## Need to know which affy chip was used in experiment
   ## affymetrix murine genome 430a genechip arrays
   bio2DE <- clValid(express, 2:6, clMethods=c("hierarchical","kmeans","pam"),
