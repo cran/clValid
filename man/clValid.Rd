@@ -166,7 +166,7 @@ goTermFreq=0.05, dropEvidence=NULL, verbose=FALSE, ...)
   Brock, G., Pihur, V., Datta, S. and Datta, S. (2008)
   clValid: An R Package for Cluster Validation
   Journal of Statistical Software 25(4)
-  \url{http://www.jstatsoft.org/v25/i04}
+  \url{https://www.jstatsoft.org/v25/i04/}
   
   Datta, S. and Datta, S. (2003)
   Comparisons and validation of statistical clustering techniques for microarray gene expression data.
@@ -176,7 +176,7 @@ goTermFreq=0.05, dropEvidence=NULL, verbose=FALSE, ...)
   Methods for evaluating clustering algorithms for gene expression data
   using a reference set of functional classes.
   BMC Bioinformatics 7:397
-  \url{http://www.biomedcentral.com/1471-2105/7/397}
+  \url{https://bmcbioinformatics.biomedcentral.com/articles/10.1186/1471-2105-7-397/}
 
   Handl, J., Knowles, K., and Kell, D. (2005)
   Computational cluster validation in post-genomic data analysis.

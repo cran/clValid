@@ -1,4 +1,10 @@
 -------------------
+Version: 0.7
+Date: 2021-02-13
+
+	* Fix matrix object having more than one class in R 4.0.0. Clean up the rest of methods.
+
+-------------------
 Version: 0.6-9
 Date: 2020-07-13
 

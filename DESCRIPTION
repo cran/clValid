@@ -1,6 +1,6 @@
 Package: clValid
-Version: 0.6-9
-Date: 2020-07-13
+Version: 0.7
+Date: 2021-02-13
 Title: Validation of Clustering Results
 Author: Guy Brock <guy.brock@louisville.edu>, Vasyl Pihur <vpihur@gmail.com>, 
 	Susmita Datta <susmita.datta@louisville.edu>, and
@@ -15,6 +15,6 @@ License: LGPL-3
 Collate: clValid-Classes.R clValid-Methods.R clValid-internal.R
         clValid-functions.R
 NeedsCompilation: no
+Packaged: 2021-02-14 19:49:26 UTC; vpihur
 Repository: CRAN
-Packaged: 2020-07-14 04:16:51 UTC; vpihur
-Date/Publication: 2020-07-14 09:10:13 UTC
+Date/Publication: 2021-02-14 20:20:03 UTC

@@ -11,12 +11,12 @@ citEntry(entry = "Article",
   volume       = "25",
   number       = "4",
   pages        = "1--22",
-  url          = "http://www.jstatsoft.org/v25/i04/",
+  url          = "https://www.jstatsoft.org/v25/i04/",
 
   textVersion  =
   paste("Guy Brock, Vasyl Pihur, Susmita Datta, Somnath Datta (2008).",
         "clValid: An R Package for Cluster Validation.",
         "Journal of Statistical Software, 25(4), 1-22.",
-        "URL http://www.jstatsoft.org/v25/i04/.")
+        "URL https://www.jstatsoft.org/v25/i04/")
 )
 
